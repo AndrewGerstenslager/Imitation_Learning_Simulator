@@ -1,22 +1,25 @@
 import pygame
 
-def init_frame(WIDTH, HEIGHT):
-    # Initialize pygame
-    pygame.init()
+class Frame():
+    def __init__(self, WIDTH, HEIGHT, sidebar):
+        # Initialize pygame
+        pygame.init()
 
-    # Constants
-    WIDTH = 800 + 64
-    HEIGHT = 600
+        # Constants
+        WIDTH = 800 + 64
+        HEIGHT = 600
+        self.sidebar = sidebar
 
-    # Set up display
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Sim")
+        # Set up display
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Sim")
 
-    return screen
+    def step(self):
+        # Colors
+        WHITE = (255, 255, 255)
+        GRAY = (80, 80, 80)
+        RED = (255, 0, 0)
+        self.screen.fill(GRAY)
+        #self._render_sidebar()
 
-def step(view):
-    # Colors
-    WHITE = (255, 255, 255)
-    GRAY = (80, 80, 80)
-    RED = (255, 0, 0)
-    view.fill(GRAY)
+    # def _render_sidebar(self):
