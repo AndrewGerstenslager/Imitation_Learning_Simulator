@@ -39,7 +39,7 @@ class Env():
         plt.title("Map Layout")
         plt.imshow(self.grid)
         plt.show()
-    
+
     def validate(self, agent):
         xi = math.ceil(agent.x/self.cellsize)
         yi = math.ceil(agent.y/self.cellsize)

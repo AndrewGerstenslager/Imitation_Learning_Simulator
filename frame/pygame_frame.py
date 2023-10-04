@@ -1,4 +1,5 @@
 import pygame
+import matplotlib.pyplot as plt
 
 class Frame():
     def __init__(self, WIDTH, HEIGHT, sidebar):
@@ -6,9 +7,10 @@ class Frame():
         pygame.init()
 
         # Constants
-        WIDTH = 800 + 64
-        HEIGHT = 600
+        self.WIDTH = 800 + 64
+        self.HEIGHT = 600
         self.sidebar = sidebar
+        self.map_back = None
 
         # Set up display
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -19,7 +21,20 @@ class Frame():
         WHITE = (255, 255, 255)
         GRAY = (80, 80, 80)
         RED = (255, 0, 0)
-        self.screen.fill(GRAY)
+        if type(self.map_back) != None:
+            self.screen.blit(self.map_back, (0, 0))
+        else:
+            self.screen.fill(GRAY)
         #self._render_sidebar()
+
+    def show_map(self, grid):
+        fig = plt.figure(0)
+        fig.set_size_inches(self.WIDTH/100, self.HEIGHT/100)
+        plt.imshow(grid)
+        plt.axis('off')
+        plt.savefig('cache/map.png', bbox_inches='tight', pad_inches=0, dpi=130)
+        # create a surface object, image is drawn on it.
+        self.map_back = pygame.image.load("cache/map.png").convert()
+
 
     # def _render_sidebar(self):

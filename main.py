@@ -14,7 +14,8 @@ view = frame.pygame_frame.Frame(WIDTH=800+64, HEIGHT=600, sidebar=64)
 agt = agent.turtle.turtle(x0=800/2, y0=600/2, spd=1, theta0=0)
 # Env class definition
 map = env.envGenerator.Env(center=[800/2, 600/2], radius=250, cellsize=10, width=800, height=600)
-map.draw_map()
+#map.draw_map()
+view.show_map(map.grid)
 
 """
 def handle_keydown_event(event):
@@ -56,6 +57,8 @@ def main():
         # Drawing
         view.step()
         agt.draw(view.screen)
+
+        # Stop condition
         if map.validate(agt) == 1:
             print("Crash")
             break
