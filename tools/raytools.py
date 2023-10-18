@@ -26,8 +26,15 @@ def getCellPos(cellsize, x, y):
     return [x_pos, y_pos]
 
 def getCollision(cellsize, grid, x, y):
+    ylen = len(grid[:,0])-1
+    xlen = len(grid[0,:])-1
     idx = getGridIndex(cellsize, x, y)
-    return grid[idx[1], idx[0]] == 1 # this is flipped...
+    if idx[0] < 0 or idx[0] > xlen:
+        return False
+    if idx[1] < 0 or idx[1] > ylen:
+        return False
+    else:
+        return grid[idx[1], idx[0]] == 1 # this is flipped...
 
 def norm(x, y):
     return (x**2 + y**2)**0.5

@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+import numpy as np
 
 sys.path.append('..')
 
@@ -13,7 +14,6 @@ cellsize = 10
 width = 800
 height = 600
 camera_res = 64
-
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=camera_res)
 # Agent class definition
@@ -22,7 +22,15 @@ agt = agent.turtle.turtle(x0=width/2, y0=height/2, spd=1, theta0=0)
 map = env.envGenerator.Env(center=[800/2, 600/2], radius=250, cellsize=cellsize, width=width, height=height)
 #map.draw_map()
 view.show_map(map.grid)
-laser1 = sensors.laser.LaserSensor(0, width/6, cellsize, map.grid)
+
+# Laser Ranger Definition
+lasers = []
+n_lasers = 10
+laser_FOV = 30
+offset = np.linspace(-laser_FOV/2, laser_FOV/2, n_lasers)
+for i in range(n_lasers):
+    laser = sensors.laser.LaserSensor(offset[i], width/6, cellsize, map.grid)
+    lasers.append(laser)
 
 
 """
@@ -64,8 +72,15 @@ def main():
         # Drawing
         view.step()
         agt.draw(view.screen)
-        dist, cpos, coll = laser1.cast(agt.x, agt.y, agt.theta, view.screen)
-        print(coll)
+        pygame.draw.circle(view.screen, [255, 255, 255], [agt.x, agt.y], 2)
+
+        # Check laser distances
+        ranges = []
+        for i in range(n_lasers):
+            laser = lasers[i]
+            dist, cpos, coll = laser.cast(agt.x, agt.y, agt.theta, view.screen, False)
+            ranges.append(dist)
+        print(ranges)
 
         # Stop condition
         if map.validate(agt) == 1:

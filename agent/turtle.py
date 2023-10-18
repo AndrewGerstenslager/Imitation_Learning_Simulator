@@ -5,15 +5,15 @@ import math
 
 class turtle():
     def __init__(self, x0, y0, spd, theta0):
-        CAR_WIDTH = 25
-        CAR_HEIGHT = 35
+        self.CAR_WIDTH = 25
+        self.CAR_HEIGHT = 35
 
         #load sprite
         self.spr = pygame.image.load('agent/spot_sprite.png').convert_alpha()
-        self.spr = pygame.transform.scale(self.spr, (CAR_WIDTH, CAR_HEIGHT))
+        self.spr = pygame.transform.scale(self.spr, (self.CAR_WIDTH, self.CAR_HEIGHT))
         self.spr = pygame.transform.rotate(self.spr, 270)
 
-        self.agt_Rect = pygame.Rect(x0, y0, CAR_WIDTH, CAR_HEIGHT)
+        self.agt_Rect = pygame.Rect(x0, y0, self.CAR_WIDTH, self.CAR_HEIGHT)
 
         # pos, speed and direction
         self.speed = spd
@@ -24,7 +24,10 @@ class turtle():
     def draw(self, screen):
         rotated_image = pygame.transform.rotate(self.spr, -self.theta)  # Pygame rotates counter-clockwise by default
         new_rect = rotated_image.get_rect(center=self.agt_Rect.center)
-        screen.blit(rotated_image, new_rect.topleft)
+        actual_pos = [0, 0]
+        actual_pos[0] = new_rect.topleft[0] - self.CAR_WIDTH/2
+        actual_pos[1] = new_rect.topleft[1] - self.CAR_HEIGHT/2
+        screen.blit(rotated_image, actual_pos)
 
     def handle_movement(self, keys):
         theta = self.theta
