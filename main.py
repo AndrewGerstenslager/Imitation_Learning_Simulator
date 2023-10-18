@@ -28,8 +28,7 @@ laser1 = sensors.laser.LaserSensor(0, width/6, cellsize, map.grid)
 """
 def handle_keydown_event(event):
     if event.key == pygame.K_i:
-        perform_action()
-wwwwwwwwwwwwww
+        perform_action()3
 def perform_action():
     # Saving screenshot
     #pygame.image.save(screen1, "screenshot.png")

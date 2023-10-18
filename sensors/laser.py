@@ -27,10 +27,10 @@ class LaserSensor():
         # x direction
         distx = self.max_range
         if theta < 90 or theta > 270:
-            x1 = self.cell_size-cellpos[0]
-            y1 = math.tan(rad)*x1
+            x1 = self.cell_size-cellpos[0] # else, just cellpos 
+            y1 = math.tan(rad)*x1 # negative for looking +y
             dist1 = tool.norm(x1,y1)
-            collisionpos = [x, y]
+            collisionpos = [x+math.cos(rad)*self.max_range, y+math.sin(rad)*self.max_range]
             if dist1 > self.max_range:
                 # initial check is too far
                 distx = self.max_range
@@ -40,19 +40,21 @@ class LaserSensor():
                 # check first collision
                 posx = (cellidx[0]+1)*self.cell_size
                 posy = y+y1
+                pygame.draw.circle(screen, [255, 0, 0], [posx, posy], 2)
                 if tool.getCollision(self.cell_size, self.grid, posx, posy):
                     distx = tool.norm(posx, posy) # return collision dist
                     collisiondist = distx
                     collisionpos = [posx, posy] # DONE
                     collision = True
                 else:
-                    distx = tool.norm(posx, posy)
+                    distx = tool.norm(posx-x, posy-y)
                     yinc = math.tan(rad)*self.cell_size
                     distinc = tool.norm(yinc, self.cell_size)
                     distx += distinc
                     while distx < self.max_range:
                         posx += self.cell_size
                         posy += yinc
+                        pygame.draw.circle(screen, [255, 0, 0], [posx, posy], 2)
                         if tool.getCollision(self.cell_size, self.grid, posx, posy):
                             collisionpos = [posx, posy]
                             collision = True
@@ -64,7 +66,7 @@ class LaserSensor():
                     collisiondist = distx # DONE
         else:
             collisiondist = self.max_range
-            collisionpos = [x, y]
+            collisionpos = [x+math.cos(rad)*self.max_range, y+math.sin(rad)*self.max_range]
             collision = False
         pygame.draw.line(screen, [255, 0, 0], [x, y], collisionpos, width=1)
         return collisiondist, collisionpos, collision
