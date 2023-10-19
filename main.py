@@ -2,7 +2,7 @@ import pygame
 import sys
 import math
 import numpy as np
-
+import pandas as pd
 sys.path.append('..')
 
 import agent.turtle
@@ -25,37 +25,18 @@ view.show_map(map.grid)
 
 # Laser Ranger Definition
 lasers = []
-n_lasers = 10
-laser_FOV = 30
+n_lasers = 20
+laser_FOV = 180
 offset = np.linspace(-laser_FOV/2, laser_FOV/2, n_lasers)
 for i in range(n_lasers):
     laser = sensors.laser.LaserSensor(offset[i], width/6, cellsize, map.grid)
     lasers.append(laser)
 
 
-"""
-def handle_keydown_event(event):
-    if event.key == pygame.K_i:
-        perform_action()3awd
-def perform_action():
-    # Saving screenshot
-    #pygame.image.save(screen1, "screenshot.png")
-    #print("Screenshot saved!")
-
-    # Checking and printing WASD keys
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        print("W key pressed")
-    if keys[pygame.K_a]:
-        print("A key pressed")
-    if keys[pygame.K_s]:
-        print("S key pressed")
-    if keys[pygame.K_d]:
-        print("D key pressed")
-"""
-
 def main():
     clock = pygame.time.Clock()
+    recording = False
+    recorded_data = pd.DataFrame()
 
     while True:
         for event in pygame.event.get():
@@ -69,6 +50,11 @@ def main():
         keys = pygame.key.get_pressed()
         agt.handle_movement(keys)
 
+        #check for switch in recording status
+        if keys[pygame.K_r]:
+            recording = not(recording)
+        print(f'recording = {recording}')
+
         # Drawing
         view.step()
         agt.draw(view.screen)
@@ -80,7 +66,7 @@ def main():
             laser = lasers[i]
             dist, cpos, coll = laser.cast(agt.x, agt.y, agt.theta, view.screen, False)
             ranges.append(dist)
-        print(ranges)
+        #print(ranges)
 
         # Stop condition
         if map.validate(agt) == 1:
@@ -89,6 +75,14 @@ def main():
         elif map.validate(agt) == 2:
             print("Goal Reached")
             break
+        
+        #after everything occurs record data if toggled on
+        if recording:
+            input_data = pd.DataFrame([int(keys[pygame.K_w]), int(keys[pygame.K_a]), int(keys[pygame.K_s]), int(keys[pygame.K_d]), ranges],
+                                   index=['W', 'A', 'S', 'D', 'ranges'])
+            recorded_data = pd.concat([recorded_data, input_data.T], ignore_index=True)
+
+            print(recorded_data)
 
         pygame.display.flip()
         clock.tick(60)
