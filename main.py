@@ -74,7 +74,7 @@ def main():
             recording = not(recording)
             frame_buffer_input += 1
             if not recording:
-                recorded_data.to_csv(f'data_log_{time.time() * 1000}.csv')
+                recorded_data.to_csv(f'data_log_{time.time() * 1000}.csv', index=False)
         
         # Toggle self-driving mode with "F" key
         if keys[pygame.K_f] and frame_buffer_input == 0:
