@@ -45,3 +45,20 @@ class turtle():
         self.agt_Rect.x = self.x
         self.agt_Rect.y = self.y
         self.theta = theta
+
+    def self_drive(self, action_vector):
+        theta = self.theta
+        speed = self.speed
+        if action_vector[0]: #W
+            self.x += speed * math.cos(math.radians(theta))
+            self.y += speed * math.sin(math.radians(theta))
+        if action_vector[2]: #S
+            self.x -= speed * math.cos(math.radians(theta))
+            self.y -= speed * math.sin(math.radians(theta))
+        if action_vector[1]: #A
+            theta -= 5  # Decrease for counter-clockwise rotation
+        if action_vector[3]: #D
+            theta += 5  # Increase for clockwise rotation
+        self.agt_Rect.x = self.x
+        self.agt_Rect.y = self.y
+        self.theta = theta
