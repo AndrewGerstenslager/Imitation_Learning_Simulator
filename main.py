@@ -30,14 +30,13 @@ height = 600
 camera_res = 64
 
 
-outer_radius = 250
-inner_radius = 150
+
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=camera_res)
-# Agent class definition
-agt = agent.turtle.turtle(x0=width/2 + outer_radius - (outer_radius-inner_radius)/2, y0=height/2, spd=1, theta0=-90)
 
+outer_radius = 250
+inner_radius = 150
 # Env class definition
 envParam = [[800/2, 600/2], inner_radius, outer_radius]
 map = env.envGenerator.Env(param=envParam,
@@ -45,6 +44,10 @@ map = env.envGenerator.Env(param=envParam,
                            cellsize=cellsize, 
                            width=width, 
                            height=height)
+
+# Agent
+agt = map.agt
+
 #map.draw_map()
 view.show_map(map.grid)
 

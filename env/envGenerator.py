@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import sys
+sys.path.append("..")
+import agent.turtle
 
 class Env():
     """Definition of environment generation"""
@@ -19,6 +22,7 @@ class Env():
             raise TypeError("No such valid map type")
         self._place_goal()
 
+
     def _gen_circle(self):
         """
         Generate Empty Circle at Center [x, y] of radius r
@@ -35,6 +39,8 @@ class Env():
                 dist = ((xpos-center[0])**2+(ypos-center[1])**2)**0.5
                 if dist >= radius:  # Check radius
                     self.grid[yi, xi] = 1
+        # Agent class definition
+        self.agt = self._create_agt(x0=center[0], y0=center[1])
 
     def _gen_donut(self):
         """
@@ -53,6 +59,8 @@ class Env():
                 dist = ((xpos-center[0])**2+(ypos-center[1])**2)**0.5
                 if dist >= outer_radius or (dist <= inner_radius and dist > 0):  # Check for the inner radius
                     self.grid[yi, xi] = 1
+        # Agent class definition
+        self.agt = self._create_agt(x0=center[0] + outer_radius - (outer_radius-inner_radius)/2, y0=center[1])
     
     def _place_goal(self):
         done = False
@@ -63,6 +71,10 @@ class Env():
                 self.grid[yi, xi] = 2
                 done = True
 
+    def _create_agt(self, x0=0, y0=0, spd=1, theta0=-90):
+        # Agent class definition
+        agt = agent.turtle.turtle(x0=x0, y0=y0, spd=spd, theta0=theta0)
+        return agt
 
     def draw_map(self):
         plt.figure(0)
