@@ -17,7 +17,6 @@ model = keras.Sequential([
 ])
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-
 sys.path.append('..')
 import agent.turtle
 import frame.pygame_frame
@@ -28,9 +27,6 @@ cellsize = 10
 width = 800
 height = 600
 camera_res = 64
-
-
-
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=camera_res)
@@ -60,6 +56,9 @@ for i in range(n_lasers):
     laser = sensors.laser.LaserSensor(angle_off=offset[i], max_range=int(width/6), cell_size=cellsize, grid=map.grid)
     lasers.append(laser)
 
+# Recorder Definition
+# TODO: Move recording code into record/control_record.py
+
 
 def main():
     clock = pygame.time.Clock()
@@ -84,7 +83,7 @@ def main():
             recording = not(recording)
             frame_buffer_input += 1
             if not recording:
-                recorded_data.to_csv(f'data_log_{time.time() * 1000}.csv', index=False)
+                recorded_data.to_csv(f'cache/data_log_{time.time() * 1000}.csv', index=False)
         
         # Toggle self-driving mode with "F" key
         if keys[pygame.K_e] and frame_buffer_input == 0:
