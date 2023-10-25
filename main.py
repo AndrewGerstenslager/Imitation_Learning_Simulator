@@ -29,9 +29,9 @@ width = 800
 height = 600
 camera_res = 64
 
+
 outer_radius = 250
 inner_radius = 150
-
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=camera_res)
@@ -39,9 +39,9 @@ view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=c
 agt = agent.turtle.turtle(x0=width/2 + outer_radius - (outer_radius-inner_radius)/2, y0=height/2, spd=1, theta0=-90)
 
 # Env class definition
-map = env.envGenerator.Env(center=[800/2, 600/2], 
-                           outer_radius=outer_radius, 
-                           inner_radius=inner_radius, 
+envParam = [[800/2, 600/2], inner_radius, outer_radius]
+map = env.envGenerator.Env(param=envParam,
+                           roomtype="donut",
                            cellsize=cellsize, 
                            width=width, 
                            height=height)
@@ -146,9 +146,9 @@ def main():
         if map.validate(agt) == 1:
             print("Crash")
             break
-        #elif map.validate(agt) == 2:
-        #    print("Goal Reached")
-        #    break
+        elif map.validate(agt) == 2:
+           print("Goal Reached")
+           break
         
         #after everything occurs record data if toggled on
         if recording:
