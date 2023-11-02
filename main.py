@@ -3,12 +3,6 @@ import sys
 import math
 import time
 import numpy as np
-import pandas as pd
-
-import tensorflow as tf
-from tensorflow import keras
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
 
 sys.path.append('..')
 import agent.turtle
@@ -58,22 +52,21 @@ recorder = record.control_record.recorder()
 def main():
     clock = pygame.time.Clock()
     while True:
+        # exit condition
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        # update movement
         keys = pygame.key.get_pressed()
-        #if not self_driving:
         agt.handle_movement(keys)
         recorder.step(keys, lasers, agt, view)
 
-        
-         
-        # Drawing
+        # Drawing env
         view.step()
-        agt.draw(view.screen)
-        #pygame.draw.circle(view.screen, [255, 255, 255], [agt.x, agt.y], 2)
+        agt.draw(view.screen) 
+        pygame.draw.circle(view.screen, [255, 255, 255], [agt.x, agt.y], 2) # debug for collision
 
         # Check laser distances
         ranges = []
@@ -82,7 +75,7 @@ def main():
             ranges.append(dist)
         #print(ranges)
 
-        # Stop condition
+        # Stop condition # TODO: make collision better
         if map.validate(agt) == 1:
             print("Crash")
             break
