@@ -18,7 +18,7 @@ class recorder():
         self.teaching = False
         self.print_prediction = False
 
-    def step(self, keys, rangers, agt, view):
+    def step(self, keys, ranges, agt, view):
 
         # Toggle recording with "R" key
         if keys[pygame.K_r] and self.frame_buffer_input == 0:
@@ -67,7 +67,7 @@ class recorder():
             print(action_vector)
 
         if self.self_driving:
-            input_data = np.array(ranges).reshape(1, a-1) / 133
+            input_data = np.array(ranges).reshape(1, -1) / 133
             predicted_action = self.model.predict(input_data)
             action_idx = np.argmax(predicted_action)
             action_vector = np.eye(4)[action_idx]
