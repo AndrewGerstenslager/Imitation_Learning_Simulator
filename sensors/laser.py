@@ -16,7 +16,7 @@ class LaserSensor():
         self.source = [0.0, 0.0]
         self.hit    = [0.0, 0.0]
     
-    def cast(self, x, y, theta, screen, debug=False):
+    def cast(self, x, y, theta, screen, show_beam=True, debug=False):
         collisiondistx, collisionposx, collisionx = self._castx(x, y, theta, screen, debug)
         collisiondisty, collisionposy, collisiony = self._casty(x, y, theta, screen, debug)
 
@@ -30,7 +30,7 @@ class LaserSensor():
             collisionpos = collisionposy
             collision = collisiony
 
-        pygame.draw.line(screen, [255, 0, 0], [x, y], collisionpos, width=1)
+        if show_beam: pygame.draw.line(screen, [255, 0, 0], [x, y], collisionpos, width=1)
 
 
         return collisiondist, collisionpos, collision
