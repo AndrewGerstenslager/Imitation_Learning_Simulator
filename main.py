@@ -46,7 +46,7 @@ for i in range(n_lasers):
 
 
 # Recorder Definition
-recorder = record.control_record.recorder()
+# recorder = record.control_record.recorder()
 
 
 def main():
@@ -61,7 +61,7 @@ def main():
         # update movement
         keys = pygame.key.get_pressed()
         agt.handle_movement(keys)
-        recorder.step(keys, lasers, agt, view)
+        # recorder.step(keys, lasers, agt, view)
 
         # Drawing env
         view.step()

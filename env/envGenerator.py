@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import sys
+import PIL
 sys.path.append("..")
 import agent.turtle
 

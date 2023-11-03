@@ -27,7 +27,7 @@ class recorder():
             if not self.recording:
                 self.recorded_data.to_csv(f'cache/data_log_test.csv', index=False)
         
-        # Toggle self-driving mode with "F" key
+        # Toggle self-driving mode with "E" key
         if keys[pygame.K_e] and self.frame_buffer_input == 0:
             self.teaching = not(self.teaching)
             self.frame_buffer_input += 1
@@ -38,7 +38,7 @@ class recorder():
             self.frame_buffer_input += 1
 
         
-        # Toggle self-driving mode with "F" key
+        # Toggle self-driving mode with "C" key
         if keys[pygame.K_c] and self.frame_buffer_input == 0:
             self.print_prediction = not(self.print_prediction)
             self.frame_buffer_input += 1
