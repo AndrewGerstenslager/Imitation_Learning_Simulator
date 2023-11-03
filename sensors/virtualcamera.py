@@ -49,5 +49,6 @@ class virtualcamera():
         # plt.imshow(img)
         # plt.show()
         canv = pygame.pixelcopy.make_surface(img.astype(int))
+        canv = pygame.transform.scale(canv, (self.width*3, self.height*3))
         # canv = pygame.surfarray.blit_array(self.view.screen, img, dest=[self.width, 0])
         self.view.screen.blit(canv, (self.frame_width, 0))

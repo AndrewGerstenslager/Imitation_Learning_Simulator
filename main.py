@@ -15,10 +15,10 @@ from sensors.virtualcamera import virtualcamera
 cellsize = 10
 width = 800
 height = 600
-camera_res = 128
+camera_res = 64
 
 # Pygame window management
-view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res)
+view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3)
 
 outer_radius = 250
 inner_radius = 150
