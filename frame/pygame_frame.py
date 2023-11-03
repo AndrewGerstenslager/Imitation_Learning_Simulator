@@ -9,13 +9,13 @@ class Frame():
         pygame.init()
 
         # Constants
-        self.WIDTH = 800 + 64
-        self.HEIGHT = 600
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
         self.sidebar = sidebar
         self.map_back = None
 
         # Set up display
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH+sidebar, HEIGHT))
         pygame.display.set_caption("Sim")
 
     def step(self):
@@ -44,7 +44,7 @@ class Frame():
         #plt.savefig('cache/map.png', bbox_inches='tight', pad_inches=0, dpi=130)
         #create a surface object, image is drawn on it.
         self.map_back = pygame.image.load(map_img_dir).convert()
-        self.map_back = pygame.transform.scale(self.map_back, (self.WIDTH-self.sidebar, self.HEIGHT))
+        self.map_back = pygame.transform.scale(self.map_back, (self.WIDTH, self.HEIGHT))
 
 
     # def _render_sidebar(self):

@@ -15,10 +15,10 @@ from sensors.virtualcamera import virtualcamera
 cellsize = 10
 width = 800
 height = 600
-camera_res = 64
+camera_res = 128
 
 # Pygame window management
-view = frame.pygame_frame.Frame(WIDTH=width+camera_res, HEIGHT=height, sidebar=camera_res)
+view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res)
 
 outer_radius = 250
 inner_radius = 150
@@ -48,7 +48,8 @@ for i in range(n_lasers):
 
 camera = virtualcamera(FOV=120, 
                     width=camera_res, 
-                    height=camera_res, 
+                    height=camera_res,
+                    frame_width=width, 
                     max_range=laser_max_range,
                     view=view,
                     cellsize=cellsize,

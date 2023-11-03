@@ -72,7 +72,7 @@ class Env():
                 self.grid[yi, xi] = 2
                 done = True
 
-    def _create_agt(self, x0=0, y0=0, spd=1, theta0=-90):
+    def _create_agt(self, x0=0, y0=0, spd=1, theta0=-45):
         # Agent class definition
         agt = agent.turtle.turtle(x0=x0, y0=y0, spd=spd, theta0=theta0)
         return agt
