@@ -77,7 +77,6 @@ def main():
         # Drawing env
         view.step()
         agt.draw(view.screen) 
-        pygame.draw.circle(view.screen, [255, 255, 255], [agt.x, agt.y], 2) # debug for collision
 
         # get camera feed
         camera.snap(agt)
@@ -89,12 +88,13 @@ def main():
             ranges.append(dist)
         #print(ranges)
 
-        # Stop condition # TODO: make collision better
-        if map.validate(agt) == 1:
-            print("Crash")
+        # Stop condition
+        valid = map.validate(view.screen)
+        if valid == 2:
+            print("Goal Reached")
             break
-        elif map.validate(agt) == 2:
-           print("Goal Reached")
+        elif valid == 1:
+           print("Crash")
            break
 
         pygame.display.flip()

@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import math
 import sys
 import PIL
+import tools.raytools as raytools
+import pygame
 sys.path.append("..")
 import agent.turtle
 
@@ -19,6 +21,8 @@ class Env():
             self._gen_circle()
         elif roomtype == "donut":
             self._gen_donut()
+        elif roomtype == "void":
+            self._gen_void()
         else:
             raise TypeError("No such valid map type")
         self._place_goal()
@@ -62,6 +66,15 @@ class Env():
                     self.grid[yi, xi] = 1
         # Agent class definition
         self.agt = self._create_agt(x0=center[0] + outer_radius - (outer_radius-inner_radius)/2, y0=center[1])
+
+    def _gen_void(self):
+        """
+        Generate empty room
+        param = [[x1, y1]]
+        """
+        start = self.param[0]
+        # Agent class definition
+        self.agt = self._create_agt(x0=start[0], y0=start[1])
     
     def _place_goal(self):
         done = False
@@ -83,7 +96,28 @@ class Env():
         plt.imshow(self.grid)
         plt.show()
 
-    def validate(self, agent):
-        xi = math.ceil(agent.x/self.cellsize)
-        yi = math.ceil(agent.y/self.cellsize)
-        return self.grid[yi, xi]
+    def validate(self, screen):
+        xi = self.agt.x
+        yi = self.agt.y
+        r = self.cellsize
+        inc = r*math.cos(math.radians(45))
+
+        collider = [
+            [yi, xi],
+            [yi+r, xi],
+            [yi+inc, xi+inc],
+            [yi, xi+r],
+            [yi-inc, xi+inc],
+            [yi-r, xi],
+            [yi-inc, xi-inc],
+            [yi, xi-r],
+            [yi+inc, xi-inc],
+        ]
+
+        collisions = [raytools.getCollision(self.cellsize, self.grid, xi, yi) for [yi, xi] in collider]
+        for yi, xi in collider:
+            pygame.draw.circle(screen, [255, 255, 255], [xi, yi], 2) # debug for collision
+
+        if 2 in collisions: return 2
+        elif 1 in collisions: return 1
+        else: return 0

@@ -34,7 +34,7 @@ def getCollision(cellsize, grid, x, y):
     if idx[1] < 0 or idx[1] > ylen:
         return False
     else:
-        return grid[idx[1], idx[0]] == 1 # this is flipped...
+        return grid[idx[1], idx[0]] # 0 is nothing, 1 is wall, 2 is goal
 
 def norm(x, y):
     return (x**2 + y**2)**0.5

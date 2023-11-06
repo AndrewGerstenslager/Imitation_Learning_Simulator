@@ -16,7 +16,7 @@ class LaserSensor():
         self.source = [0.0, 0.0]
         self.hit    = [0.0, 0.0]
     
-    def cast(self, x, y, theta, screen, show_beam=True, debug=False):
+    def cast(self, x, y, theta, screen, show_beam=True, camera_beam=False, debug=False):
         collisiondistx, collisionposx, collisionx = self._castx(x, y, theta, screen, debug)
         collisiondisty, collisionposy, collisiony = self._casty(x, y, theta, screen, debug)
 
@@ -31,6 +31,7 @@ class LaserSensor():
             collision = collisiony
 
         if show_beam: pygame.draw.line(screen, [255, 0, 0], [x, y], collisionpos, width=1)
+        if camera_beam: pygame.draw.line(screen, [255, 255, 0], [x, y], collisionpos, width=2)
 
 
         return collisiondist, collisionpos, collision
@@ -41,6 +42,7 @@ class LaserSensor():
 
         cellidx = tool.getGridIndex(self.cell_size, x, y)
         cellpos = tool.getCellPos(self.cell_size, x, y)
+        collisiontype = 0
 
         # x direction
         distx = self.max_range
@@ -60,6 +62,7 @@ class LaserSensor():
                     distx = tool.norm(posx, posy) # return collision dist
                     collisiondist = distx
                     collisionpos = [posx, posy] # DONE
+                    collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                     if debug: pygame.draw.circle(screen, [255, 0, 255], [posx, posy], 3)
                     collision = True
                 else:
@@ -74,6 +77,7 @@ class LaserSensor():
                         if tool.getCollision(self.cell_size, self.grid, posx, posy):
                             collisionpos = [posx, posy]
                             collisiondist = distx
+                            collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                             if debug: pygame.draw.circle(screen, [255, 0, 255], [posx, posy], 3)
                             collision = True
                             break
@@ -96,6 +100,7 @@ class LaserSensor():
                     distx = tool.norm(posx, posy) # return collision dist
                     collisiondist = distx
                     collisionpos = [posx, posy] # DONE
+                    collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                     if debug: pygame.draw.circle(screen, [255, 0, 255], [posx, posy], 3)
                     collision = True
                 else:
@@ -110,6 +115,7 @@ class LaserSensor():
                         if tool.getCollision(self.cell_size, self.grid, posx, posy):
                             collisionpos = [posx, posy]
                             collisiondist = distx
+                            collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                             if debug: pygame.draw.circle(screen, [255, 0, 255], [posx, posy], 3)
                             collision = True
                             break
@@ -122,7 +128,7 @@ class LaserSensor():
             collisionpos = [x+math.cos(rad)*self.max_range, y+math.sin(rad)*self.max_range]
             collisiondist = self.max_range
         
-        return collisiondist, collisionpos, collision
+        return collisiondist, collisionpos, collisiontype
     
     def _casty(self, x, y, theta, screen, debug):
         theta = tool.wrapTheta(theta + self.angle_off)
@@ -130,6 +136,8 @@ class LaserSensor():
 
         cellidx = tool.getGridIndex(self.cell_size, x, y)
         cellpos = tool.getCellPos(self.cell_size, x, y)
+
+        collisiontype = 0
 
         # y direction
         disty = self.max_range
@@ -149,6 +157,7 @@ class LaserSensor():
                     disty = tool.norm(posx, posy) # return collision dist
                     collisiondist = disty
                     collisionpos = [posx, posy] # DONE
+                    collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                     if debug: pygame.draw.circle(screen, [0, 255, 255], [posx, posy], 3)
                     collision = True
                 else:
@@ -163,6 +172,7 @@ class LaserSensor():
                         if tool.getCollision(self.cell_size, self.grid, posx, posy):
                             collisiondist = disty
                             collisionpos = [posx, posy]
+                            collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                             if debug: pygame.draw.circle(screen, [0, 255, 255], [posx, posy], 3)
                             collision = True
                             break
@@ -185,6 +195,7 @@ class LaserSensor():
                     disty = tool.norm(posx, posy) # return collision dist
                     collisiondist = disty
                     collisionpos = [posx, posy] # DONE
+                    collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                     if debug: pygame.draw.circle(screen, [0, 255, 255], [posx, posy], 3)
                     collision = True
                 else:
@@ -200,6 +211,7 @@ class LaserSensor():
                             collisionpos = [posx, posy]
                             collisiondist = disty
                             collision = True
+                            collisiontype = tool.getCollision(self.cell_size, self.grid, posx, posy)
                             if debug: pygame.draw.circle(screen, [0, 255, 255], [posx, posy], 3)
                             break
                         disty += distinc
@@ -210,4 +222,4 @@ class LaserSensor():
         if collision == False:
             collisionpos = [x+math.cos(rad)*self.max_range, y+math.sin(rad)*self.max_range]
             collisiondist = self.max_range
-        return collisiondist, collisionpos, collision
+        return collisiondist, collisionpos, collisiontype
