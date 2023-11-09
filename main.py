@@ -79,7 +79,11 @@ def main():
         agt.draw(view.screen) 
 
         # get camera feed
-        camera.snap(agt)
+        print(pygame.time.get_ticks())
+        if pygame.time.get_ticks() > 5000 and pygame.time.get_ticks() < 5500:
+            savesnap = True
+        else: savesnap = False
+        camera.snap(agt, savesnap)
 
         # Check laser distances
         ranges = []

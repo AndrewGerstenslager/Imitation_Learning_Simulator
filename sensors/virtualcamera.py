@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import math
 import matplotlib.pyplot as plt
+from PIL import Image
 import sensors.laser
 
 
@@ -35,7 +36,8 @@ class virtualcamera():
         self.backimg = self.backimg.astype('int')
 
         
-    def snap(self, agt):
+    def snap(self, agt, savesnap=False):
+        cam_img_dir = "cache/camerasnap.png"
         # Check laser distances
         slices = []
         dists = []
@@ -65,6 +67,10 @@ class virtualcamera():
             if gridtypes[i] == 2:
                 img[i, h1:h2, 1] = 0
                 img[i, h1:h2, 2] = 0
+
+        if savesnap:
+            imgfile = Image.fromarray(img.astype('uint8'), mode="RGB") # Save current
+            imgfile.save(cam_img_dir)
         # plt.imshow(img)
         # plt.show()
         canv = pygame.pixelcopy.make_surface(img.astype(int))
