@@ -7,6 +7,7 @@ import tools.raytools as raytools
 import pygame
 sys.path.append("..")
 import agent.turtle
+import random
 
 class Env():
     """Definition of environment generation"""
@@ -23,6 +24,8 @@ class Env():
             self._gen_donut()
         elif roomtype == "void":
             self._gen_void()
+        elif roomtype == "grid":
+            self._gen_grid()
         else:
             raise TypeError("No such valid map type")
         self._place_goal()
@@ -75,14 +78,43 @@ class Env():
         start = self.param[0]
         # Agent class definition
         self.agt = self._create_agt(x0=start[0], y0=start[1])
-    
+
+    def _gen_grid(self):
+        """
+        Generate a simple grid and randomly spawn agent at a position that is not a wall.
+        """
+        valid_positions = []  # List to store valid positions (0 in the grid)
+
+        # Set some rows to 1
+        for start_row in range(0, self.y_n, 8):
+            for row in range(start_row, start_row + 1):
+                for col in range(self.x_n):
+                    self.grid[row, col] = 1
+
+        # Set some columns to 0 and collect valid positions
+        for start_col in range(0, self.x_n, 15):
+            for col in range(start_col, min(start_col + 8, self.x_n)):
+                for row in range(self.y_n):
+                    if self.grid[row, col] == 0:
+                        valid_positions.append((row, col))
+                    self.grid[row, col] = 0
+
+        # Shuffle the valid positions list for randomness
+        random.shuffle(valid_positions)
+
+        # Randomly choose a valid position to place the agent
+        if valid_positions:
+            random_position = random.choice(valid_positions)
+            self.agt = self._create_agt(x0=random_position[0], y0=random_position[0])
+
+
     def _place_goal(self):
         done = False
         while not done:
             xi = int(np.random.rand()*self.x_n)
             yi = int(np.random.rand()*self.y_n)
-            if self.grid[yi, xi] == 0:
-                self.grid[yi, xi] = 2
+            if self.grid[yi][xi] == 0:
+                self.grid[yi][xi] = 2
                 done = True
 
     def _create_agt(self, x0=0, y0=0, spd=1, theta0=-45):
