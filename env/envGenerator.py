@@ -11,9 +11,10 @@ import random
 
 class Env():
     """Definition of environment generation"""
-    def __init__(self, param, roomtype, cellsize, width, height):
+    def __init__(self, param, roomtype, cellsize, width, height, seed):
         self.x_n = int(width/cellsize)
         self.y_n = int(height/cellsize)
+        self.seed = seed
         # gen map matrix
         self.goalpos = [0.0, 0.0]
         self.cellsize = cellsize
@@ -29,6 +30,8 @@ class Env():
             self._gen_grid()
         elif roomtype == "course":
             self._gen_course()
+        elif roomtype == "random":
+            self._gen_random_map()
         elif roomtype == "datagen":
             self._gen_testmap()
         else:
@@ -133,46 +136,104 @@ class Env():
 
         # Set the first 8 rows and 8 columns of the grid to zero
         self.grid[0:8, 0:8] = 0
-
         # Set rows 2 to 9 and columns 8 to 64 of the grid to zero
         self.grid[2:10, 8:65] = 0
-
         # Set rows 2 to 24 and columns 38 to 44 of the grid to zero
         self.grid[2:25, 38:45] = 0
-
         # Set rows 8 to 57 and columns 8 to 15 of the grid to zero
         self.grid[8:58, 8:16] = 0
-
         # Set rows 30 to 36 and columns 14 to 25 of the grid to zero
         self.grid[30:37, 14:26] = 0
-
         # Set rows 12 to 36 and columns 23 to 31 of the grid to zero
         self.grid[12:37, 23:32] = 0
-
         # Set rows 18 to 25 and columns 31 to 57 of the grid to zero
         self.grid[18:26, 31:58] = 0
-
         # Set rows 18 to 25 and columns 30 to 78 of the grid to zero
         self.grid[18:26, 30:79] = 0
-
         # Set rows 50 to 57 and columns 20 to 62 of the grid to zero
         self.grid[50:58, 20:63] = 0
-
         # Set rows 25 to 57 and columns 63 to 70 of the grid to zero
         self.grid[25:58, 63:71] = 0
-
         # Set rows 35 to 57 and columns 48 to 54 of the grid to zero
         self.grid[35:58, 48:55] = 0
-
         # Set rows 35 to 42 and columns 33 to 54 of the grid to zero
         self.grid[35:43, 33:55] = 0
-
         # Set rows 7 to 24 and columns 69 to 78 of the grid to zero
         self.grid[7:25, 69:79] = 0
 
         # Create an agent at position (0,0)
         self.agt = self._create_agt(x0=0, y0=0)
 
+    def _gen_random_map(self):
+        # Set the seed for the random number generator
+        np.random.seed(self.seed)
+
+        n_hallways = np.random.randint(10, 100)  # Random number of hallways between 20 and 100
+        min_hallway_length = 20  
+        max_hallway_length = 50  
+        hallway_width = 9  
+
+        # Fill the 2D grid of size y_n by x_n  with ones
+        self.grid = np.ones((self.y_n, self.x_n), dtype=int)
+
+        # Initialize the start position for the first hallway
+        row_start = 1
+        col_start = 0
+
+        # Initialize the lists to keep track of the rows and columns where hallways have been created
+        horizontal_rows = []
+        vertical_cols = []
+
+        # Counter to keep track of the number of times a column overlaps
+        col_overlap_counter = 0
+
+        for i in range(n_hallways):
+            # Choose the direction of the hallway (0 for right, 1 for down, 2 for left, 3 for up)
+            direction = i % 4
+
+            # Randomly choose the length of the hallway
+            hallway_length = np.random.randint(min_hallway_length, max_hallway_length)
+
+            if direction == 0:
+                # Right
+                col_end = min(col_start + hallway_length, self.x_n - hallway_width - 1)
+                # Check for horizontal overlap
+                if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
+                    self.grid[row_start:row_start + hallway_width, col_start:col_end] = 0
+                    horizontal_rows.extend(range(row_start, row_start + hallway_width))
+                    col_start = col_end
+            elif direction == 1:
+                # Down
+                row_end = min(row_start + hallway_length, self.y_n - hallway_width - 1)
+                # Check for vertical overlap
+                if col_start not in vertical_cols and col_start + hallway_width not in vertical_cols:
+                    self.grid[row_start:row_end, col_start:col_start + hallway_width] = 0
+                    vertical_cols.extend(range(col_start, col_start + hallway_width))
+                    row_start = row_end
+            elif direction == 2:
+                # Left
+                col_start = max(col_start - hallway_length, hallway_width)
+                # Check for horizontal overlap
+                if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
+                    self.grid[row_start:row_start + hallway_width, col_start:col_end] = 0
+                    horizontal_rows.extend(range(row_start, row_start + hallway_width))
+            else:
+                # Up
+                row_start = max(row_start - hallway_length, hallway_width)
+                # Check for vertical overlap
+                if col_start not in vertical_cols and col_start + hallway_width not in vertical_cols:
+                    self.grid[row_start:row_start + hallway_length, col_start:col_start + hallway_width] = 0
+                    vertical_cols.extend(range(col_start, col_start + hallway_width))
+
+        # Set the first row and first 8 columns of the grid to zero
+        self.grid[0:1, 0:8] = 0
+
+        # There is a weird bug when I try to spawn the agent at some random zero position in the grid.
+        # The agent would crash on spawn.
+        # Working progress.....
+
+        # Set the agent's spawn position to (0,0)
+        self.agt = self._create_agt(x0=0, y0=0)
 
     def _place_goal(self):
         done = False
