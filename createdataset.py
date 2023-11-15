@@ -16,7 +16,7 @@ cellsize = 10
 width = 240
 height = 240
 camera_res = 64
-data_num = 500
+data_num = 2000
 labels = np.zeros((data_num,3))
 
 # Pygame window management
