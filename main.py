@@ -25,7 +25,7 @@ inner_radius = 150
 # Env class definition
 envParam = [[800/2, 600/2], inner_radius, outer_radius]
 map = env.envGenerator.Env(param=envParam,
-                           roomtype="grid",
+                           roomtype="course",
                            cellsize=cellsize, 
                            width=width, 
                            height=height)

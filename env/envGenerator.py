@@ -27,6 +27,8 @@ class Env():
             self._gen_void()
         elif roomtype == "grid":
             self._gen_grid()
+        elif roomtype == "course":
+            self._gen_course()
         elif roomtype == "datagen":
             self._gen_testmap()
         else:
@@ -124,6 +126,52 @@ class Env():
         if valid_positions:
             random_position = random.choice(valid_positions)
             self.agt = self._create_agt(x0=random_position[0], y0=random_position[1])
+
+    def _gen_course(self):
+        # Fill the 2D grid of size y_n by x_n  with ones
+        self.grid = np.ones((self.y_n, self.x_n), dtype=int)
+
+        # Set the first 8 rows and 8 columns of the grid to zero
+        self.grid[0:8, 0:8] = 0
+
+        # Set rows 2 to 9 and columns 8 to 64 of the grid to zero
+        self.grid[2:10, 8:65] = 0
+
+        # Set rows 2 to 24 and columns 38 to 44 of the grid to zero
+        self.grid[2:25, 38:45] = 0
+
+        # Set rows 8 to 57 and columns 8 to 15 of the grid to zero
+        self.grid[8:58, 8:16] = 0
+
+        # Set rows 30 to 36 and columns 14 to 25 of the grid to zero
+        self.grid[30:37, 14:26] = 0
+
+        # Set rows 12 to 36 and columns 23 to 31 of the grid to zero
+        self.grid[12:37, 23:32] = 0
+
+        # Set rows 18 to 25 and columns 31 to 57 of the grid to zero
+        self.grid[18:26, 31:58] = 0
+
+        # Set rows 18 to 25 and columns 30 to 78 of the grid to zero
+        self.grid[18:26, 30:79] = 0
+
+        # Set rows 50 to 57 and columns 20 to 62 of the grid to zero
+        self.grid[50:58, 20:63] = 0
+
+        # Set rows 25 to 57 and columns 63 to 70 of the grid to zero
+        self.grid[25:58, 63:71] = 0
+
+        # Set rows 35 to 57 and columns 48 to 54 of the grid to zero
+        self.grid[35:58, 48:55] = 0
+
+        # Set rows 35 to 42 and columns 33 to 54 of the grid to zero
+        self.grid[35:43, 33:55] = 0
+
+        # Set rows 7 to 24 and columns 69 to 78 of the grid to zero
+        self.grid[7:25, 69:79] = 0
+
+        # Create an agent at position (0,0)
+        self.agt = self._create_agt(x0=0, y0=0)
 
 
     def _place_goal(self):
