@@ -36,8 +36,8 @@ class virtualcamera():
         self.backimg = self.backimg.astype('int')
 
         
-    def snap(self, agt, savesnap=False):
-        cam_img_dir = "cache/camerasnap.png"
+    def snap(self, agt, savesnap=False, snapname="camerasnap"):
+        cam_img_dir = "cache/dataset/"+snapname+".png"
         # Check laser distances
         slices = []
         dists = []
@@ -70,6 +70,7 @@ class virtualcamera():
 
         if savesnap:
             imgfile = Image.fromarray(img.astype('uint8'), mode="RGB") # Save current
+            imgfile = imgfile.rotate(90)
             imgfile.save(cam_img_dir)
         # plt.imshow(img)
         # plt.show()

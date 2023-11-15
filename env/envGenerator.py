@@ -15,6 +15,7 @@ class Env():
         self.x_n = int(width/cellsize)
         self.y_n = int(height/cellsize)
         # gen map matrix
+        self.goalpos = [0.0, 0.0]
         self.cellsize = cellsize
         self.grid = np.zeros((self.y_n, self.x_n))
         self.param = param
@@ -26,6 +27,8 @@ class Env():
             self._gen_void()
         elif roomtype == "grid":
             self._gen_grid()
+        elif roomtype == "datagen":
+            self._gen_testmap()
         else:
             raise TypeError("No such valid map type")
         self._place_goal()
@@ -70,6 +73,21 @@ class Env():
         # Agent class definition
         self.agt = self._create_agt(x0=center[0] + outer_radius - (outer_radius-inner_radius)/2, y0=center[1])
 
+    def _gen_testmap(self):
+        """
+        Generate test room for image generation
+        """
+        x0 = self.param[0]
+        y0 = self.param[1]
+        theta0 = self.param[2]
+
+        self.grid[0, :] = 1
+        self.grid[-1,:] = 1
+        self.grid[:,0] = 1
+        self.grid[:, -1] = 1
+        # Agent class definition
+        self.agt = self._create_agt(x0=x0, y0=y0, theta0=theta0)
+
     def _gen_void(self):
         """
         Generate empty room
@@ -105,7 +123,7 @@ class Env():
         # Randomly choose a valid position to place the agent
         if valid_positions:
             random_position = random.choice(valid_positions)
-            self.agt = self._create_agt(x0=random_position[0], y0=random_position[0])
+            self.agt = self._create_agt(x0=random_position[0], y0=random_position[1])
 
 
     def _place_goal(self):
@@ -116,6 +134,7 @@ class Env():
             if self.grid[yi][xi] == 0:
                 self.grid[yi][xi] = 2
                 done = True
+        self.goalpos = [xi*self.cellsize+self.cellsize/2, yi*self.cellsize+self.cellsize/2]
 
     def _create_agt(self, x0=0, y0=0, spd=1, theta0=-45):
         # Agent class definition

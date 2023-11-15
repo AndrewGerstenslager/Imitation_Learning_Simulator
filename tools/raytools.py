@@ -9,6 +9,15 @@ def wrapTheta(theta):
     wrapped = theta - rotations*360
     return wrapped
 
+def wrapTheta180(theta):
+    """
+    wrap theta within bounds [-180-180)
+    """
+    rotations = math.floor((abs(theta)+180)/360)
+    theta = theta-theta/abs(theta)*rotations*360
+
+    return theta
+
 def getGridIndex(cellsize, x, y):
     """
     gets grid index of cell at position (x, y)
@@ -38,3 +47,10 @@ def getCollision(cellsize, grid, x, y):
 
 def norm(x, y):
     return (x**2 + y**2)**0.5
+
+def relativeAngle(pos1, aim, pos2):
+    dx = pos2[0] - pos1[0]
+    dy = pos2[1] - pos1[1]
+    rel_angle = math.degrees(math.atan2(dy,dx))
+    off = rel_angle - aim
+    return wrapTheta180(off)

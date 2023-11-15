@@ -38,7 +38,7 @@ view.show_map(map.grid)
 
 # Laser Ranger Definition
 lasers = []
-laser_max_range = width/6
+laser_max_range = 124
 n_lasers = 20
 laser_FOV = 180
 offset = np.linspace(-laser_FOV/2, laser_FOV/2, n_lasers)
@@ -76,14 +76,11 @@ def main():
 
         # Drawing env
         view.step()
+        off, norm = view.disp_angleoff(agt, map)
         agt.draw(view.screen) 
 
         # get camera feed
-        print(pygame.time.get_ticks())
-        if pygame.time.get_ticks() > 5000 and pygame.time.get_ticks() < 5500:
-            savesnap = True
-        else: savesnap = False
-        camera.snap(agt, savesnap)
+        camera.snap(agt)
 
         # Check laser distances
         ranges = []
