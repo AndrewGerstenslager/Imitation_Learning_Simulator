@@ -25,12 +25,14 @@ inner_radius = 150
 # Env class definition
 envParam = [[800/2, 600/2], inner_radius, outer_radius]
 map = env.envGenerator.Env(param=envParam,
-                           roomtype="random",
+                           roomtype="course",
                            cellsize=cellsize, 
                            width=width, 
                            height=height,
                            seed=seed)
 
+pygame.font.init()
+font = pygame.font.SysFont('Arial', 24)
 # Agent
 agt = map.agt
 
@@ -58,7 +60,7 @@ camera = virtualcamera(FOV=120,
 
 
 # Recorder Definition
-# recorder = record.control_record.recorder()
+recorder = record.control_record.recorder()
 
 
 def main():
@@ -73,7 +75,7 @@ def main():
         # update movement
         keys = pygame.key.get_pressed()
         agt.handle_movement(keys)
-        # recorder.step(keys, lasers, agt, view)
+        
 
         # Drawing env
         view.step()
@@ -90,6 +92,11 @@ def main():
             ranges.append(dist)
         #print(ranges)
 
+        recorder.step(keys, ranges, agt, view)
+
+        if recorder.recording:
+            pass
+
         # Stop condition
         valid = map.validate(view.screen)
         if valid == 2:
@@ -98,9 +105,18 @@ def main():
         elif valid == 1:
            print("Crash")
            break
+        
 
+
+
+        # Blit the text surface onto the screen
+        view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 150))
+        view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 120))
+        view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 90))
+        view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 60))
+        view.screen.blit(font.render('Print-Prediction: C', True, (255, 255, 255)), (width, height - 30))
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(200)
 
 if __name__ == "__main__":
     main()

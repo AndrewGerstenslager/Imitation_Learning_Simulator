@@ -135,7 +135,7 @@ class Env():
         self.grid = np.ones((self.y_n, self.x_n), dtype=int)
 
         # Set the first 8 rows and 8 columns of the grid to zero
-        self.grid[0:8, 0:8] = 0
+        self.grid[1:8, 1:8] = 0
         # Set rows 2 to 9 and columns 8 to 64 of the grid to zero
         self.grid[2:10, 8:65] = 0
         # Set rows 2 to 24 and columns 38 to 44 of the grid to zero
@@ -162,7 +162,7 @@ class Env():
         self.grid[7:25, 69:79] = 0
 
         # Create an agent at position (0,0)
-        self.agt = self._create_agt(x0=0, y0=0)
+        self.agt = self._create_agt(x0=30, y0=30)
 
     def _gen_random_map(self):
         # Set the seed for the random number generator

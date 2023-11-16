@@ -27,7 +27,7 @@ class recorder():
             if not self.recording:
                 self.recorded_data.to_csv(f'cache/data_log_test.csv', index=False)
         
-        # Toggle self-driving mode with "E" key
+        # Toggle teaching mode with "E" key
         if keys[pygame.K_e] and self.frame_buffer_input == 0:
             self.teaching = not(self.teaching)
             self.frame_buffer_input += 1
@@ -38,7 +38,7 @@ class recorder():
             self.frame_buffer_input += 1
 
         
-        # Toggle self-driving mode with "C" key
+        # Toggle print-prediction mode with "C" key
         if keys[pygame.K_c] and self.frame_buffer_input == 0:
             self.print_prediction = not(self.print_prediction)
             self.frame_buffer_input += 1
@@ -77,11 +77,17 @@ class recorder():
 
         #after everything occurs record data if toggled on
         if self.recording:
-            input_data = pd.DataFrame([int(keys[pygame.K_w]), int(keys[pygame.K_a]), int(keys[pygame.K_s]), int(keys[pygame.K_d]), ranges],
+            ranges = [x / 124 for x in ranges]
+            input_data = pd.DataFrame([int(keys[pygame.K_w]), 
+                                       int(keys[pygame.K_a]), 
+                                       int(keys[pygame.K_s]), 
+                                       int(keys[pygame.K_d]), 
+                                       ranges],
                                    index=['W', 'A', 'S', 'D', 'ranges'])
-            recorded_data = pd.concat([recorded_data, input_data.T], ignore_index=True)
 
-            print(recorded_data)
+            self.recorded_data = pd.concat([self.recorded_data, input_data.T], ignore_index=True)
+
+            print(self.recorded_data)
 
         if self.frame_buffer_input > 0:
             self.frame_buffer_input += 1
