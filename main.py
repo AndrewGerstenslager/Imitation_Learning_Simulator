@@ -96,14 +96,10 @@ def main():
 
         # get camera feed TODO: offload
         img = camera.snap(agt)
-        if i / 1 >= 1:
-            #y_hat = Model(torch.from_numpy(np.rot90(np.moveaxis(img, 2, 0), axes=(1, 2))/255).type(torch.float).view(1, 3, 64, 64))
-            #view.disp_pred(float(y_hat)*120-60)
-            if recommended == [1, 0, 0]:
-               recommended = [1, 0, 0]
-            else:
-                recommended = models.cheatCNN.readImg(img)
-            i = 0
+        if recommended == [1, 0, 0]:
+            recommended = [1, 0, 0]
+        else:
+            recommended = models.cheatCNN.readImg(img)
 
 
         # Check laser distances
