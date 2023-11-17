@@ -94,7 +94,7 @@ def main():
         off, norm = view.disp_angleoff(agt, map)
         agt.draw(view.screen) 
 
-        # get camera feed TODO: offload
+        # get camera feed and move with cheater CNN
         img = camera.snap(agt)
         if recommended == [1, 0, 0]:
             recommended = [1, 0, 0]
