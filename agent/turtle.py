@@ -29,18 +29,18 @@ class turtle():
         actual_pos[1] = new_rect.topleft[1] - self.CAR_HEIGHT/2
         screen.blit(rotated_image, actual_pos)
 
-    def handle_movement(self, keys):
+    def handle_movement(self, keys, recommended=[0, 0, 0]):
         theta = self.theta
         speed = self.speed
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] or recommended[0] == 1:
             self.x += speed * math.cos(math.radians(theta))
             self.y += speed * math.sin(math.radians(theta))
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] :
             self.x -= speed * math.cos(math.radians(theta))
             self.y -= speed * math.sin(math.radians(theta))
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or recommended[1] == 1:
             theta -= 5  # Decrease for counter-clockwise rotation
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or recommended[2] == 1:
             theta += 5  # Increase for clockwise rotation
         self.agt_Rect.x = self.x
         self.agt_Rect.y = self.y

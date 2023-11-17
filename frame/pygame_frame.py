@@ -32,15 +32,22 @@ class Frame():
 
     def disp_angleoff(self, agt, env):
         off = tools.raytools.relativeAngle([agt.x, agt.y], agt.theta, env.goalpos)
-        # font = pygame.font.Font('freesansbold.ttf', 32)
-        # text = font.render(str.zfill(str(round(off,2)),6), True, (255, 0, 0),(0,0,0))
-        # textRect = text.get_rect()
-        # textRect.center = (self.WIDTH+self.sidebar/2, self.sidebar*1.5)
-        # self.screen.blit(text, textRect)
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render(str.zfill(str(round(off,2)),6), True, (255, 0, 0),(0,0,0))
+        textRect = text.get_rect()
+        textRect.center = (self.WIDTH+self.sidebar/2, self.sidebar*1.5)
+        self.screen.blit(text, textRect)
         dx = env.goalpos[0]-agt.x
         dy = env.goalpos[1]-agt.y
         norm = tools.raytools.norm(dx, dy)
         return off, norm
+    
+    def disp_pred(self, pred):
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render(str.zfill(str(round(pred,2)),6), True, (0, 0, 255),(0,0,0))
+        textRect = text.get_rect()
+        textRect.center = (self.WIDTH+self.sidebar/2, self.sidebar*3)
+        self.screen.blit(text, textRect)
 
     def show_map(self, grid):
         map_img_dir = "cache/map.png"
