@@ -10,42 +10,52 @@ import tqdm
 
 sys.path.append('/..')
 import BasicCNN
+import PoseNet
 import liamfuncs
 np.random.seed(100)
 device = torch.device("cuda")
 
-dir = os.getcwd()+"\\data"
+dir = os.getcwd()+"\\cache"
 # import data
-x_train, y_train, x_valid, y_valid, x_test, y_test = liamfuncs.data_import(dir)
-# print(x_train.size()) #(73, 3, 64, 64)
+x = liamfuncs.data_import(dir)#(2000, 3, 64, 64)
 
+labeldata = np.genfromtxt(dir+"\\dataset_index.csv", skip_header=1)
+# print(labeldata)
+cpux = x.cpu().numpy()
+redbluediff = (np.sum(cpux[:,0,:,:].reshape(2000, 1, 64**2) - cpux[:,2,:,:].reshape(2000, 1, 64**2), axis=-1).astype('bool')).flatten()
+positive = np.where(redbluediff==True)
+x = x[positive]
+labelconfidence = redbluediff.astype('float')
+labeloffset = labeldata[:,1]
+y = torch.from_numpy(labeloffset).type(torch.float).view(len(labeloffset), 1).cuda()# torch.from_numpy(np.stack((labeloffset, labelconfidence), axis=1)).type(torch.float).cuda()
+y = y[positive]
+min1 = -60 #torch.min(y)
+max1 = 60 #torch.max(y)
+print(min1)
+print(max1)
+y = (y - min1) / (max1 - min1)
+x_train = x[0:400,:,:,:]
+y_train = y[0:400]
+x_valid = x[400:425,:,:,:]
+y_valid = y[400:425]
+x_test = x[425:450,:,:,:]
+y_test = y[425:450]
 
 # Training parameters
-epochs = 100 # 1000)
-
-
+epochs = 1000 # 1000)
 
 # Loss function
-#criterion = torch.nn.BCELoss()
-criterion = liamfuncs.dice_loss
-crit_name = "dice"
+criterion = torch.nn.MSELoss()
+crit_name = "MSE"
 
-# Model
-# model = models.U_net_2.U_net().cuda()
-# modelname = "U_net_2"
-# model = models.U_net_3.U_net().cuda()
-# modelname = "U_net_3"
-# model = models.U_net_4.U_net().cuda()
-# modelname = "U_net_4"
-# model = models.U_net_2_norm.U_net().cuda()
-# modelname = "U_net_2_norm"
-# model = models.U_net_3_norm.U_net().cuda()
-# modelname = "U_net_3_norm"
-model = models.U_net_4_norm.U_net().cuda()
-modelname = "U_net_4_norm"
+# model
+# model = BasicCNN.CNN().cuda()
+# modelname = "CameraCNN"
+model = PoseNet.NN().cuda()
+modelname="Pose_Net"
 
 # learning rate
-lr = 0.05
+lr = 0.001
 
 # Reset optimizer
 optimizer = torch.optim.SGD(model.parameters(), lr=lr)
@@ -63,8 +73,9 @@ valid_hist = []
 
 # Enable training mode (activates dropout, etc.)
 model.train()
-batch_size = 4
+
 num_samples = x_train.size()[0]
+batch_size = num_samples
 i = 0
 
 with tqdm.tqdm(total=epochs*int(num_samples/batch_size)) as pbar:
@@ -104,13 +115,6 @@ with tqdm.tqdm(total=epochs*int(num_samples/batch_size)) as pbar:
                 valid_hist.append(loss.cpu().detach())
                 #print(loss.cpu().detach())
 
-            # # show training images (debug)
-            # fig, axs = plt.subplots(1, 2)
-            # fig.suptitle('Multiple images')
-            # axs[0].imshow(torch.movedim(x_train[rnge1].cpu(), 0,2))
-            # axs[1].imshow(y_train[rnge1].cpu())
-            # plt.show()
-
             pbar.update()
         
 
@@ -118,25 +122,17 @@ with tqdm.tqdm(total=epochs*int(num_samples/batch_size)) as pbar:
 
 # Save Model
 save = True
-if save: torch.save(model.state_dict(), "models/saved/"+run_name+".pt")
+if save: torch.save(model.state_dict(), os.getcwd()+"/models/saved/"+run_name+".pt")
 
 # Activate evaluation mode
 model.eval()
 
-print("Evaluation")
-with torch.no_grad(): # Do not calculate gradients for testing
-    y_hat = model(x_test[0:4]) # prediction
-
-    # Test Image
-    fig, axs = plt.subplots(1, 3, num=1)
-    fig.suptitle('Predict '+run_name)
-    axs[0].imshow(torch.movedim(x_test[0].cpu(), 0,2))
-    axs[0].set_title("Input")
-    axs[1].imshow(y_test[0].cpu())
-    axs[1].set_title("Label")
-    axs[2].imshow(y_hat[0].view(512,512).cpu().detach().numpy())
-    axs[2].set_title("Prediction")
-    plt.savefig("ref/pred_"+run_name+".png")
+# print("Evaluation")
+# with torch.no_grad(): # Do not calculate gradients for testing
+#     for i in range(10):
+#         y_hat = model(x_test[i:i+1,:,:,:]) # prediction
+#         print("Offset Predicted:", y_hat[0])
+#         print("Offset label:", y_test[i])
 
 
 plt.figure(2)
@@ -150,5 +146,21 @@ plt.ylabel("Loss")
 plt.title('Training Loss: '+run_name)
 plt.legend()
 #plt.savefig(os.getcwd()+"/ref/Loss"+modelname+"LR"+str(lr)+".png")
-plt.savefig("ref/loss_"+run_name+".png")
+# plt.savefig("ref/loss_"+run_name+".png")
+plt.show()
+
+ax = plt.figure(3).add_subplot(projection='3d')
+# plot pred vs true
+y_hat = model(x_train).cpu().detach().numpy()
+y_true = y_train.cpu().detach().numpy()
+depthdata = labeldata[:,2]
+depthpositive = depthdata[positive]
+depth = depthpositive[0:400].reshape(400, 1)
+print(np.shape(depth))
+ax.plot(y_true, y_hat, depth, 'g.')
+plt.xlabel("true")
+plt.ylabel("pred")
+ax.set_zlabel("Sample Depth")
+plt.title('Model Prediction')
+plt.axis([0, 1, 0, 1])
 plt.show()
