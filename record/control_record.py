@@ -82,7 +82,7 @@ class recorder():
             self.model.fit([image_inputs, lidar_inputs], outputs, epochs=1, batch_size=1, validation_data=None)
 
             # Clear the recorded data
-            self.recorded_data = pd.DataFrame(columns=['image', 'lidar', 'action'])
+            #self.recorded_data = pd.DataFrame(columns=['image', 'lidar', 'action'])
         else:
             print("DATA EMPTY")
 
