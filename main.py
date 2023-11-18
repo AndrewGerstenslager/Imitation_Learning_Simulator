@@ -83,40 +83,35 @@ def main():
         agt.draw(view.screen) 
 
         # get camera feed
-        camera.snap(agt)
+        image = camera.snap(agt)
 
         # Check laser distances
         ranges = []
         for laser in lasers:
             dist, cpos, coll = laser.cast(agt.x, agt.y, agt.theta, view.screen, True)
             ranges.append(dist)
-        #print(ranges)
-
-        recorder.step(keys, ranges, agt, view)
-
-        if recorder.recording:
-            pass
+        recorder.step(keys, ranges, agt, view, image)
 
         # Stop condition
         valid = map.validate(view.screen)
         if valid == 2:
             print("Goal Reached")
-            break
+            #break
         elif valid == 1:
            print("Crash")
-           break
+           #break
         
-
-
-
         # Blit the text surface onto the screen
-        view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 150))
-        view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 120))
-        view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 90))
-        view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 60))
-        view.screen.blit(font.render('Print-Prediction: C', True, (255, 255, 255)), (width, height - 30))
+        view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 250))
+        #view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 220))
+        view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 190))
+        view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 160))
+        view.screen.blit(font.render('Load Model: K', True, (255, 255, 255)), (width, height - 100))
+        view.screen.blit(font.render('Save Model: L', True, (255, 255, 255)), (width, height - 70))
+
+
         pygame.display.flip()
-        clock.tick(200)
+        clock.tick(30)
 
 if __name__ == "__main__":
     main()
