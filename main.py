@@ -103,7 +103,7 @@ def main():
         
         # Blit the text surface onto the screen
         view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 250))
-        #view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 220))
+        view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 220))
         view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 190))
         view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 160))
         view.screen.blit(font.render('Load Model: K', True, (255, 255, 255)), (width, height - 100))
@@ -111,7 +111,7 @@ def main():
 
 
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(50)
 
 if __name__ == "__main__":
     main()

@@ -100,15 +100,28 @@ class recorder():
 
         # Toggle teaching mode with "E" key
         if keys[pygame.K_e] and self.frame_buffer_input == 0:
-            self.toggle_teaching_mode(keys)
+            self.recording = False
+            print(f'RECORDING = {self.recording}')
             self.frame_buffer_input += 1
+            if not self.recording:
+                print(f'RECORDED DATA SHAPE = {self.recorded_data.shape}')
+            self.train_model_on_recorded_data()
+
+        # Toggle recording mode with "R" key
+        if keys[pygame.K_r] and self.frame_buffer_input == 0:
+            self.recording = not(self.recording)
+            print(f'RECORDING = {self.recording}')
+            self.frame_buffer_input += 1
+            if not self.recording:
+                print(f'RECORDED DATA SHAPE = {self.recorded_data.shape}')
 
         # Toggle self-driving mode with "F" key
         if keys[pygame.K_f] and self.frame_buffer_input == 0:
             self.self_driving = not(self.self_driving)
+            print(f'SELF DRIVING = {self.self_driving}')
             self.frame_buffer_input += 1
 
-        if self.teaching:
+        if self.recording:
             lidar_data = np.array(ranges) / 133 # Normalize input data
             image_data = np.array(image) / 255.0  # Normalize pixel values
             action_truth = None
