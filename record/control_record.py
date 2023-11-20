@@ -29,7 +29,7 @@ class recorder():
         if initmodel != '':
             filepath = initmodel
             self.model = tf.keras.models.load_model(filepath, compile=False)
-            self.model.compile()
+            self.model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
         else:
             self.model = get_model()
         self.recording = False
@@ -98,7 +98,7 @@ class recorder():
             self.frame_buffer_input += 1
         if self.frame_buffer_input == 10:
             self.frame_buffer_input = 0
-            
+
         # Load model with "K" key
         if keys[pygame.K_k] and self.frame_buffer_input == 0:
             self.load_model()

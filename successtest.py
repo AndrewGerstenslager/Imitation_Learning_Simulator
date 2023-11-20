@@ -117,9 +117,10 @@ def main():
             goal_reached = False
             break
         elif ctrl_prev[0] == 1 and ctrl_prev[1] == -1 and ctrl_prev[2] == 1 and ctrl_prev[3] == -1:
-            print("infinite loop detected")
-            goal_reached = False
-            break
+            agt.self_drive([1,0,0])
+            #print("infinite loop detected")
+            #goal_reached = False
+            #break
         elif i >= end_steps:
             print("Max Time Reached")
             goal_reached = False

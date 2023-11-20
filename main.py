@@ -25,7 +25,7 @@ inner_radius = 150
 # Env class definition
 envParam = [[800/2, 600/2], inner_radius, outer_radius]
 map = env.envGenerator.Env(param=envParam,
-                           roomtype="course",
+                           roomtype="random",
                            cellsize=cellsize, 
                            width=width, 
                            height=height,
@@ -111,7 +111,7 @@ def main():
 
 
         pygame.display.flip()
-        clock.tick(50)
+        clock.tick(20)
 
 if __name__ == "__main__":
     main()
