@@ -40,7 +40,8 @@ class recorder():
         initialdir = os.getcwd()  # Get the current working directory
         filepath = filedialog.askopenfilename(initialdir=initialdir)
         if filepath:
-            self.model = tf.keras.models.load_model(filepath)
+            self.model = tf.keras.models.load_model(filepath, compile=False)
+            self.model.compile()
             print("LOADED MODEL")
         root.destroy()
 
