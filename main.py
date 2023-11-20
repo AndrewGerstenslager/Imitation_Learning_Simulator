@@ -22,17 +22,19 @@ camera_res = 64
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3)
-seed = 20  # seeds with complex maps: 7, 12, 20, 
+seed = 42  
+hallway_length = 11 #If using roomtype "winding", increasing length will reduce complexity of map (length should stay within range 9-20)
 outer_radius = 250
 inner_radius = 150
 # Env class definition
 #envParam = [[800/2, 600/2], inner_radius, outer_radius]
 envParam = [width/2, height/2, 0]
 map = env.envGenerator.Env(param=envParam,
-                           roomtype="random",
+                           roomtype="winding",
                            cellsize=cellsize, 
                            width=width, 
                            height=height,
+                           hallway_length=hallway_length,
                            seed=seed)
 
 # Agent
@@ -42,9 +44,9 @@ agt = map.agt
 view.show_map(map.grid)
 
 # CNN
-Model = models.PoseNet.NN()
-Model.load_state_dict(torch.load("models/saved/Pose_Net_LR0.001_Ep1000_Opt-SGD_LossMSE.pt", map_location=torch.device('cpu')))
-Model.eval()
+# Model = models.PoseNet.NN()
+# Model.load_state_dict(torch.load("models/saved/Pose_Net_LR0.001_Ep1000_Opt-SGD_LossMSE.pt", map_location=torch.device('cpu')))
+# Model.eval()
 
 
 # Laser Ranger Definition
@@ -69,7 +71,6 @@ camera = virtualcamera(FOV=120,
 
 # Recorder Definition
 recorder = record.control_record.recorder()
-
 
 def main():
     
