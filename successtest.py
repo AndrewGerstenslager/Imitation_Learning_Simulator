@@ -67,7 +67,7 @@ def main():
 
 
     # Recorder Definition
-    recorder = record.control_record.recorder("model_20231120_000730.h5")
+    recorder = record.control_record.recorder("model_20231120_010859.h5")
     recorder.self_driving = True
 
     i = 0

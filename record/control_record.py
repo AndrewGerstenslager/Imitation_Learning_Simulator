@@ -46,7 +46,7 @@ class recorder():
         filepath = filedialog.askopenfilename(initialdir=initialdir)
         if filepath:
             self.model = tf.keras.models.load_model(filepath, compile=False)
-            self.model.compile()
+            self.model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
             print("LOADED MODEL")
         root.destroy()
 
