@@ -37,6 +37,8 @@ map = env.envGenerator.Env(param=envParam,
                            hallway_length=hallway_length,
                            seed=seed)
 
+pygame.font.init()
+font = pygame.font.SysFont('Arial', 24)
 # Agent
 agt = map.agt
 
@@ -87,40 +89,44 @@ def main():
 
         # update movement
         keys = pygame.key.get_pressed()
-        agt.handle_movement(keys, recommended)
-        recorder.step(keys, lasers, agt, view)
+        agt.handle_movement(keys)
+        # recorder.step(keys, lasers, agt, view)
 
         # Drawing env
         view.step()
         off, norm = view.disp_angleoff(agt, map)
         agt.draw(view.screen) 
 
-        # get camera feed and move with cheater CNN
-        img = camera.snap(agt)
-        if recommended == [1, 0, 0]:
-            recommended = [1, 0, 0]
-        else:
-            recommended = models.cheatCNN.readImg(img)
-
+        # get camera feed
+        camera.snap(agt)
 
         # Check laser distances
         ranges = []
         for laser in lasers:
             dist, cpos, coll = laser.cast(agt.x, agt.y, agt.theta, view.screen, True)
             ranges.append(dist)
-        #print(ranges)
+        recorder.step(keys, ranges, agt, view, image)
 
         # Stop condition
         valid = map.validate(view.screen)
         if valid == 2:
             print("Goal Reached")
-            break
+            #break
         elif valid == 1:
            print("Crash")
-           break
+           #break
+        
+        # Blit the text surface onto the screen
+        view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 250))
+        view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 220))
+        view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 190))
+        view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 160))
+        view.screen.blit(font.render('Load Model: K', True, (255, 255, 255)), (width, height - 100))
+        view.screen.blit(font.render('Save Model: L', True, (255, 255, 255)), (width, height - 70))
+
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(50)
 
 if __name__ == "__main__":
     main()
