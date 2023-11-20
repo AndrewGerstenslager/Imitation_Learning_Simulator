@@ -22,7 +22,7 @@ camera_res = 64
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3)
-seed = 42  
+seed = int(np.random.random()*1000)
 hallway_length = 11 #If using roomtype "winding", increasing length will reduce complexity of map (length should stay within range 9-20)
 outer_radius = 250
 inner_radius = 150
@@ -98,7 +98,7 @@ def main():
         agt.draw(view.screen) 
 
         # get camera feed
-        camera.snap(agt)
+        image = camera.snap(agt)
 
         # Check laser distances
         ranges = []

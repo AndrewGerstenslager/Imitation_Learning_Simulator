@@ -285,6 +285,8 @@ class Env():
                     # Carve a hallway from the current position to the new position
                     for i in range(hallway_length):
                         for j in range(hallway_length):
+                            if dx == 0 and dy == -1:
+                                spawn_agent_in_hallway(start_x, start_y)
                             if 5 <= x + i * dx < self.x_n - 5 and 5 <= y + j * dy < self.y_n - 5:
                                 self.grid[y + j * dy][x + i * dx] = 0
 
@@ -303,7 +305,7 @@ class Env():
                                     self.grid[y + j][x + i] = 0
 
         
-        def spawn_agent_in_hallway():
+        def spawn_agent_in_hallway(x0=None, y0=None):
             # Find hallway positions
             hallway_positions = [(y, x) for y in range(self.y_n) for x in range(self.x_n) if self.hallway_map[y][x] == 1]
 
@@ -313,7 +315,7 @@ class Env():
                 y, x = spawn_position
                 x0 = 10 * x
                 y0 = 10 * y
-                self.agt = self._create_agt(x0=x0, y0=y0)
+                self.agt = self._create_agt(x0=x0, y0=y0, theta0=-90)
 
         # Start carving from a random position within the specified boundaries
         start_x = random.randint(5, self.x_n - 5)
@@ -323,8 +325,8 @@ class Env():
         # Expand the hallways by n units on each side (hallways are initially carved with width of 1 unit)
         expand_hallways(expansion_width)
 
-        # Spawn the agent at a random position in the hallways
-        spawn_agent_in_hallway()
+        ## Spawn the agent at a random position in the hallways
+        #spawn_agent_in_hallway(start_x, start_y)
 
     def _place_goal(self):
         done = False
