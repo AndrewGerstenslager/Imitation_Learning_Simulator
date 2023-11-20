@@ -165,75 +165,80 @@ class Env():
         self.agt = self._create_agt(x0=30, y0=30)
 
     def _gen_random_map(self):
-        # Set the seed for the random number generator
-        np.random.seed(self.seed)
-
-        n_hallways = np.random.randint(10, 100)  # Random number of hallways between 20 and 100
-        min_hallway_length = 20  
-        max_hallway_length = 50  
-        hallway_width = 9  
-
-        # Fill the 2D grid of size y_n by x_n  with ones
         self.grid = np.ones((self.y_n, self.x_n), dtype=int)
-
-        # Initialize the start position for the first hallway
-        row_start = 1
-        col_start = 0
-
-        # Initialize the lists to keep track of the rows and columns where hallways have been created
+        np.random.seed(self.seed)
+        n_hallways = 2  
+        hallway_lengths = [20, 35, 50]  
+        hallway_width = 9 
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
+        row_start, col_start = 1, 0  # Starting point for the first hallway
         horizontal_rows = []
         vertical_cols = []
 
-        # Counter to keep track of the number of times a column overlaps
-        col_overlap_counter = 0
-
-        for i in range(n_hallways):
-            # Choose the direction of the hallway (0 for right, 1 for down, 2 for left, 3 for up)
-            direction = i % 4
-
-            # Randomly choose the length of the hallway
-            hallway_length = np.random.randint(min_hallway_length, max_hallway_length)
-
-            if direction == 0:
-                # Right
-                col_end = min(col_start + hallway_length, self.x_n - hallway_width - 1)
-                # Check for horizontal overlap
-                if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
+        for _ in range(n_hallways):
+            np.random.shuffle(directions)  # Randomize the order of directions
+            for direction in directions:
+                hallway_length = np.random.choice(hallway_lengths)
+                if direction == (0, 1):  # Right
+                    col_end = min(col_start + hallway_length, self.x_n - hallway_width - 1)
                     self.grid[row_start:row_start + hallway_width, col_start:col_end] = 0
                     horizontal_rows.extend(range(row_start, row_start + hallway_width))
                     col_start = col_end
-            elif direction == 1:
-                # Down
-                row_end = min(row_start + hallway_length, self.y_n - hallway_width - 1)
-                # Check for vertical overlap
-                if col_start not in vertical_cols and col_start + hallway_width not in vertical_cols:
+                elif direction == (1, 0):  # Down
+                    row_end = min(row_start + hallway_length, self.y_n - hallway_width - 1)
                     self.grid[row_start:row_end, col_start:col_start + hallway_width] = 0
                     vertical_cols.extend(range(col_start, col_start + hallway_width))
                     row_start = row_end
-            elif direction == 2:
-                # Left
-                col_start = max(col_start - hallway_length, hallway_width)
-                # Check for horizontal overlap
-                if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
+                elif direction == (0, -1):  # Left
+                    col_end = col_start
+                    col_start = max(col_start - hallway_length, hallway_width)
                     self.grid[row_start:row_start + hallway_width, col_start:col_end] = 0
                     horizontal_rows.extend(range(row_start, row_start + hallway_width))
-            else:
-                # Up
-                row_start = max(row_start - hallway_length, hallway_width)
-                # Check for vertical overlap
-                if col_start not in vertical_cols and col_start + hallway_width not in vertical_cols:
-                    self.grid[row_start:row_start + hallway_length, col_start:col_start + hallway_width] = 0
+                else:  # Up
+                    row_end = row_start
+                    row_start = max(row_start - hallway_length, hallway_width)
+                    self.grid[row_start:row_end, col_start:col_start + hallway_width] = 0
                     vertical_cols.extend(range(col_start, col_start + hallway_width))
 
-        # Set the first row and first 8 columns of the grid to zero
-        self.grid[0:1, 0:8] = 0
+        # Add a horizontal hallway
+        while True:
+            row_start = np.random.randint(1, self.y_n - hallway_width - 1)
+            if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
+                self.grid[row_start:row_start + hallway_width, 1:self.x_n - 1] = 0
+                horizontal_rows.extend(range(row_start, row_start + hallway_width))
+                break
 
-        # There is a weird bug when I try to spawn the agent at some random zero position in the grid.
-        # The agent would crash on spawn.
-        # Working progress.....
+        # Add a vertical hallway
+        while True:
+            col_start = np.random.randint(1, self.x_n - hallway_width - 1)
+            if not any(col in vertical_cols for col in range(col_start, col_start + hallway_width)):
+                self.grid[1:self.y_n - 1, col_start:col_start + hallway_width] = 0
+                vertical_cols.extend(range(col_start, col_start + hallway_width))
+                break
+        
+        # Add border to frame before carving an entrance and spawning agent at entrance
+        self.grid[0, :] = 1
+        self.grid[-1, :] = 1
+        self.grid[:, 0] = 1
+        self.grid[:, -1] = 1
 
-        # Set the agent's spawn position to (0,0)
-        self.agt = self._create_agt(x0=0, y0=0)
+        # Check for entrances and spawn the agent
+        # entrances = [(i, j) for i in range(self.y_n) for j in range(self.x_n) if self.grid[i, j] == 0 and (i == 0 or i == self.y_n - 1 or j == 0 or j == self.x_n - 1)]
+        directions = [(0, 1), (1, 0)]
+        # if entrances:
+        #     x0, y0 = random.choice(entrances)
+        # else:
+        np.random.shuffle(directions)
+        if directions[1] == (0,1):
+            self.grid[1:hallway_width-1, 1:50] = 0  # If uninterested in entrance/exit change 0:50 to 1:50 --> reverse for entrance/exit
+        else:
+            self.grid[1:40, 1:hallway_width-1] = 0  # If uninterested in entrance/exit change 0:50 to 1:40 --> reverse for entrance/exit
+        
+        # self.grid[0:6, 0:6] = 0
+        # x0, y0 = 30,30
+
+        x0 = y0 = 10*hallway_width//2
+        self.agt = self._create_agt(x0=x0, y0=y0)
 
     def _place_goal(self):
         done = False

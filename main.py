@@ -22,14 +22,14 @@ camera_res = 64
 
 # Pygame window management
 view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3)
-seed = 40   #seeds with good maps: 40, 2  (keep exploring)
+seed = 20  # seeds with complex maps: 7, 12, 20, 
 outer_radius = 250
 inner_radius = 150
 # Env class definition
 #envParam = [[800/2, 600/2], inner_radius, outer_radius]
 envParam = [width/2, height/2, 0]
 map = env.envGenerator.Env(param=envParam,
-                           roomtype="course",
+                           roomtype="random",
                            cellsize=cellsize, 
                            width=width, 
                            height=height,
