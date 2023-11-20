@@ -227,13 +227,15 @@ class Env():
 
         # Set the first row and first 8 columns of the grid to zero
         self.grid[0:1, 0:8] = 0
+        self.grid[0,:] = 1
+        self.grid[:,0] = 1
 
         # There is a weird bug when I try to spawn the agent at some random zero position in the grid.
         # The agent would crash on spawn.
         # Working progress.....
 
         # Set the agent's spawn position to (0,0)
-        self.agt = self._create_agt(x0=0, y0=0)
+        self.agt = self._create_agt(x0=50, y0=50, theta0=0)
 
     def _place_goal(self):
         done = False
