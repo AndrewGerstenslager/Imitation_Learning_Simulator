@@ -94,6 +94,11 @@ class recorder():
 
     def step(self, keys, ranges, agt, view, image):
         
+        if self.frame_buffer_input > 0:
+            self.frame_buffer_input += 1
+        if self.frame_buffer_input == 10:
+            self.frame_buffer_input = 0
+            
         # Load model with "K" key
         if keys[pygame.K_k] and self.frame_buffer_input == 0:
             self.load_model()
@@ -168,8 +173,3 @@ class recorder():
             #print(action_vector.squeeze())  # Squeeze to remove the batch dimension for printing
             agt.self_drive(action_vector.squeeze())  # Assuming agt.self_drive expects a 1D array as input
             return action_vector.squeeze()
-
-        if self.frame_buffer_input > 0:
-            self.frame_buffer_input += 1
-        if self.frame_buffer_input == 10:
-            self.frame_buffer_input = 0
