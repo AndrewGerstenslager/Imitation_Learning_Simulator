@@ -43,7 +43,7 @@ view.show_map(map.grid)
 
 # CNN
 Model = models.PoseNet.NN()
-Model.load_state_dict(torch.load("models/saved/Pose_Net_LR0.001_Ep1000_Opt-SGD_LossMSE.pt", map_location=torch.device('cpu')))
+Model.load_state_dict(torch.load("models/saved/Pose_Net_LR0.01_Ep1000_Opt-SGD_LossCE.pt", map_location=torch.device('cpu')))
 Model.eval()
 
 
@@ -88,7 +88,6 @@ def main():
         keys = pygame.key.get_pressed()
         agt.handle_movement(keys, recommended)
         recorder.step(keys, lasers, agt, view)
-
         # Drawing env
         view.step()
         off, norm = view.disp_angleoff(agt, map)
@@ -96,13 +95,13 @@ def main():
 
         # get camera feed TODO: offload
         img = camera.snap(agt)
-        if i / 1 >= 1:
-            #y_hat = Model(torch.from_numpy(np.rot90(np.moveaxis(img, 2, 0), axes=(1, 2))/255).type(torch.float).view(1, 3, 64, 64))
-            #view.disp_pred(float(y_hat)*120-60)
-            if recommended == [1, 0, 0]:
-               recommended = [1, 0, 0]
-            else:
-                recommended = models.cheatCNN.readImg(img)
+        if i / 1 >= 2:
+            y_hat = Model(torch.from_numpy(np.rot90(np.moveaxis(img, 2, 0), axes=(1, 2))/255).type(torch.float).view(1, 3, 64, 64))
+            ctrl = list(y_hat[0][0:3])
+            recommended = [0, 0, 0]
+            if max(ctrl) > 0.6:
+                idx = ctrl.index(max(ctrl))
+                recommended[idx] = 1
             i = 0
 
 
@@ -112,7 +111,6 @@ def main():
             dist, cpos, coll = laser.cast(agt.x, agt.y, agt.theta, view.screen, True)
             ranges.append(dist)
         #print(ranges)
-
         # Stop condition
         valid = map.validate(view.screen)
         if valid == 2:

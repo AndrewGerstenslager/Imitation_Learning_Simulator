@@ -32,15 +32,15 @@ class turtle():
     def handle_movement(self, keys, recommended=[0, 0, 0]):
         theta = self.theta
         speed = self.speed
-        if keys[pygame.K_w] or recommended[0] == 1:
+        if keys[pygame.K_w] or recommended[0]:
             self.x += speed * math.cos(math.radians(theta))
             self.y += speed * math.sin(math.radians(theta))
         if keys[pygame.K_s] :
             self.x -= speed * math.cos(math.radians(theta))
             self.y -= speed * math.sin(math.radians(theta))
-        if keys[pygame.K_a] or recommended[1] == 1:
+        if keys[pygame.K_a] or recommended[2]:
             theta -= 5  # Decrease for counter-clockwise rotation
-        if keys[pygame.K_d] or recommended[2] == 1:
+        if keys[pygame.K_d] or recommended[1]:
             theta += 5  # Increase for clockwise rotation
         self.agt_Rect.x = self.x
         self.agt_Rect.y = self.y

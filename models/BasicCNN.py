@@ -34,10 +34,9 @@ class CNN(torch.nn.Module):
                 kernel_size=2
             ), # 16x16x32
             torch.nn.Flatten(1,-1), # Flatten output prior to Linear
-            torch.nn.Linear(16*16*32, 1) # output turn angle and confidence
+            torch.nn.Linear(16*16*32, 4), # output turn angle and confidence
+            torch.nn.Softmax()
         )
-
-        self.sigmoid = torch.nn.Sigmoid()
         
     def forward(self, x): # Forward propogation
         result = self.layers(x)

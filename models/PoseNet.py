@@ -17,8 +17,8 @@ class NN(torch.nn.Module):
             torch.nn.Linear(3*64**2, 3*64**2),
             torch.nn.BatchNorm1d(3*64**2),
             torch.nn.Sigmoid(),
-            torch.nn.Linear(3*64**2, 1),
-            torch.nn.Tanh()
+            torch.nn.Linear(3*64**2, 4),
+            torch.nn.Softmax()
         )
 
         self.sigmoid = torch.nn.Sigmoid()

@@ -11,7 +11,7 @@ import random
 
 class Env():
     """Definition of environment generation"""
-    def __init__(self, param, roomtype, cellsize, width, height, seed):
+    def __init__(self, param, roomtype, cellsize, width, height, seed=None):
         self.x_n = int(width/cellsize)
         self.y_n = int(height/cellsize)
         self.seed = seed
@@ -166,12 +166,12 @@ class Env():
 
     def _gen_random_map(self):
         # Set the seed for the random number generator
-        np.random.seed(self.seed)
+        #np.random.seed(self.seed)
 
         n_hallways = np.random.randint(10, 100)  # Random number of hallways between 20 and 100
         min_hallway_length = 20  
         max_hallway_length = 50  
-        hallway_width = 9  
+        hallway_width = 7  
 
         # Fill the 2D grid of size y_n by x_n  with ones
         self.grid = np.ones((self.y_n, self.x_n), dtype=int)
@@ -262,16 +262,28 @@ class Env():
         r = self.cellsize
         inc = r*math.cos(math.radians(45))
 
+        # collider = [
+        #     [yi, xi],
+        #     [yi+r, xi],
+        #     [yi+inc, xi+inc],
+        #     [yi, xi+r],
+        #     [yi-inc, xi+inc],
+        #     [yi-r, xi],
+        #     [yi-inc, xi-inc],
+        #     [yi, xi-r],
+        #     [yi+inc, xi-inc],
+        # ]
+
         collider = [
             [yi, xi],
             [yi+r, xi],
-            [yi+inc, xi+inc],
+            [yi+r, xi+r],
             [yi, xi+r],
-            [yi-inc, xi+inc],
+            [yi-r, xi+r],
             [yi-r, xi],
-            [yi-inc, xi-inc],
+            [yi-r, xi-r],
             [yi, xi-r],
-            [yi+inc, xi-inc],
+            [yi+r, xi-r],
         ]
 
         collisions = [raytools.getCollision(self.cellsize, self.grid, xi, yi) for [yi, xi] in collider]
