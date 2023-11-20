@@ -23,10 +23,15 @@ self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['
 
 
 class recorder():
-    def __init__(self) -> None:
+    def __init__(self, initmodel = "") -> None:
         self.recorded_data = pd.DataFrame()
         self.frame_buffer_input = 0
-        self.model = get_model()
+        if initmodel != '':
+            filepath = initmodel
+            self.model = tf.keras.models.load_model(filepath, compile=False)
+            self.model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
+        else:
+            self.model = get_model()
         self.recording = False
         self.self_driving = False
         self.teaching = False
@@ -40,7 +45,8 @@ class recorder():
         initialdir = os.getcwd()  # Get the current working directory
         filepath = filedialog.askopenfilename(initialdir=initialdir)
         if filepath:
-            self.model = tf.keras.models.load_model(filepath)
+            self.model = tf.keras.models.load_model(filepath, compile=False)
+            self.model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
             print("LOADED MODEL")
         root.destroy()
 
@@ -88,6 +94,11 @@ class recorder():
 
     def step(self, keys, ranges, agt, view, image):
         
+        if self.frame_buffer_input > 0:
+            self.frame_buffer_input += 1
+        if self.frame_buffer_input == 10:
+            self.frame_buffer_input = 0
+
         # Load model with "K" key
         if keys[pygame.K_k] and self.frame_buffer_input == 0:
             self.load_model()
@@ -155,14 +166,10 @@ class recorder():
 
             # Use model.predict to get the action probabilities
             # The input should be a list where each element is a batch of inputs for one of the model's inputs
-            predicted_action = self.model.predict([image_data, lidar_data])
+            predicted_action = self.model.predict([image_data, lidar_data],verbose = 0)
             action_idx = np.argmax(predicted_action, axis=1)  # Use axis=1 to get the index of the max value in each row
             action_vector = np.eye(3)[action_idx]  # Convert to one-hot encoded actions
 
-            print(action_vector.squeeze())  # Squeeze to remove the batch dimension for printing
+            #print(action_vector.squeeze())  # Squeeze to remove the batch dimension for printing
             agt.self_drive(action_vector.squeeze())  # Assuming agt.self_drive expects a 1D array as input
-
-        if self.frame_buffer_input > 0:
-            self.frame_buffer_input += 1
-        if self.frame_buffer_input == 10:
-            self.frame_buffer_input = 0
+            return action_vector.squeeze()
