@@ -205,128 +205,17 @@ class Env():
                     self.grid[row_start:row_end, col_start:col_start + hallway_width] = 0
                     vertical_cols.extend(range(col_start, col_start + hallway_width))
 
-        # Add a horizontal hallway
-        while True:
-            row_start = np.random.randint(1, self.y_n - hallway_width - 1)
-            if not any(row in horizontal_rows for row in range(row_start, row_start + hallway_width)):
-                self.grid[row_start:row_start + hallway_width, 1:self.x_n - 1] = 0
-                horizontal_rows.extend(range(row_start, row_start + hallway_width))
-                break
+        # Set the first row and first 8 columns of the grid to zero
+        self.grid[0:1, 0:8] = 0
+        self.grid[0,:] = 1
+        self.grid[:,0] = 1
 
-        # Add a vertical hallway
-        while True:
-            col_start = np.random.randint(1, self.x_n - hallway_width - 1)
-            if not any(col in vertical_cols for col in range(col_start, col_start + hallway_width)):
-                self.grid[1:self.y_n - 1, col_start:col_start + hallway_width] = 0
-                vertical_cols.extend(range(col_start, col_start + hallway_width))
-                break
-        
-        # Add border to frame before carving an entrance and spawning agent at entrance
-        self.grid[0, :] = 1
-        self.grid[-1, :] = 1
-        self.grid[:, 0] = 1
-        self.grid[:, -1] = 1
+        # There is a weird bug when I try to spawn the agent at some random zero position in the grid.
+        # The agent would crash on spawn.
+        # Working progress.....
 
-        # Check for entrances and spawn the agent
-        # entrances = [(i, j) for i in range(self.y_n) for j in range(self.x_n) if self.grid[i, j] == 0 and (i == 0 or i == self.y_n - 1 or j == 0 or j == self.x_n - 1)]
-        directions = [(0, 1), (1, 0)]
-        # if entrances:
-        #     x0, y0 = random.choice(entrances)
-        # else:
-        np.random.shuffle(directions)
-        if directions[1] == (0,1):
-            self.grid[1:hallway_width-1, 1:50] = 0  # If uninterested in entrance/exit change 0:50 to 1:50 --> reverse for entrance/exit
-        else:
-            self.grid[1:40, 1:hallway_width-1] = 0  # If uninterested in entrance/exit change 0:50 to 1:40 --> reverse for entrance/exit
-        
-        # self.grid[0:6, 0:6] = 0
-        # x0, y0 = 30,30
-
-        x0 = y0 = 10*hallway_width//2
-        self.agt = self._create_agt(x0=x0, y0=y0)
-
-
-    def _gen_random_simple(self):
-        """
-        This method is used to generate a randomly generated map of one continuous winding hallway.
-        Generated map is fully enclosed withing the borders of the grid.
-        """
-        random.seed(self.seed)
-        # Define the length of the hallways
-        hallway_length = self.hallway_length # for simplier randomly generated maps increade length (do not do beyond 20)
-        # Define the expansion width
-        expansion_width = 4
-
-        # Set the random seed
-        random.seed(self.seed)
-
-        # Initialize the grid with ones
-        self.grid = np.ones((self.y_n, self.x_n), dtype=int)
-
-        # Initialize the hallway map with zeros
-        self.hallway_map = np.zeros((self.y_n, self.x_n), dtype=int)
-
-        # Define the directions of movement
-        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-
-        # Recursive function to carve the hallways
-        def carve(x, y):
-            random.shuffle(directions)
-            for dx, dy in directions:
-                nx, ny = x + dx * hallway_length, y + dy * hallway_length
-                # Check if the new position is inside the boundary and is a wall
-                if 5 <= nx < self.x_n - 5 and 5 <= ny < self.y_n - 5 and self.grid[ny][nx] == 1:
-                    # Mark the hallway positions in the hallway map
-                    for i in range(hallway_length):
-                        for j in range(hallway_length):
-                            if 5 <= x + i * dx < self.x_n - 5 and 5 <= y + j * dy < self.y_n - 5:
-                                self.hallway_map[y + j * dy][x + i * dx] = 1
-
-                    # Carve a hallway from the current position to the new position
-                    for i in range(hallway_length):
-                        for j in range(hallway_length):
-                            if dx == 0 and dy == -1:
-                                spawn_agent_in_hallway(start_x, start_y)
-                            if 5 <= x + i * dx < self.x_n - 5 and 5 <= y + j * dy < self.y_n - 5:
-                                self.grid[y + j * dy][x + i * dx] = 0
-
-                    # Recursively carve from the new position (a singular path is followed)
-                    carve(nx, ny)
-                    break  
-
-        def expand_hallways(expansion_width):
-            # Iterate through the hallway map and expand the hallways
-            for y in range(self.y_n):
-                for x in range(self.x_n):
-                    if self.hallway_map[y][x] == 1:
-                        for i in range(-expansion_width, expansion_width + 1):
-                            for j in range(-expansion_width, expansion_width + 1):
-                                if 0 <= x + i < self.x_n and 0 <= y + j < self.y_n:
-                                    self.grid[y + j][x + i] = 0
-
-        
-        def spawn_agent_in_hallway(x0=None, y0=None):
-            # Find hallway positions
-            hallway_positions = [(y, x) for y in range(self.y_n) for x in range(self.x_n) if self.hallway_map[y][x] == 1]
-
-            # Choose a random position for spawning
-            if hallway_positions:
-                spawn_position = random.choice(hallway_positions)
-                y, x = spawn_position
-                x0 = 10 * x
-                y0 = 10 * y
-                self.agt = self._create_agt(x0=x0, y0=y0, theta0=-90)
-
-        # Start carving from a random position within the specified boundaries
-        start_x = random.randint(5, self.x_n - 5)
-        start_y = random.randint(5, self.y_n - 5)
-        carve(start_x, start_y)
-
-        # Expand the hallways by n units on each side (hallways are initially carved with width of 1 unit)
-        expand_hallways(expansion_width)
-
-        ## Spawn the agent at a random position in the hallways
-        #spawn_agent_in_hallway(start_x, start_y)
+        # Set the agent's spawn position to (0,0)
+        self.agt = self._create_agt(x0=50, y0=50, theta0=0)
 
     def _place_goal(self):
         done = False

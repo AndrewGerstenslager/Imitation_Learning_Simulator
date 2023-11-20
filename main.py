@@ -126,7 +126,7 @@ def main():
 
 
         pygame.display.flip()
-        clock.tick(50)
+        clock.tick(20)
 
 if __name__ == "__main__":
     main()
