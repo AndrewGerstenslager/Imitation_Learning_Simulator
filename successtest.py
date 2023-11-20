@@ -24,7 +24,7 @@ view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3
 
 def main():
     clock = pygame.time.Clock()
-    end_steps = 2500
+    end_steps = 2000
 
     seed = int(np.random.random()*1000)   #seeds with good maps: 40, 2  (keep exploring)
     outer_radius = 250
@@ -86,7 +86,6 @@ def main():
 
         # Drawing env
         view.step()
-        off, norm = view.disp_angleoff(agt, map)
         agt.draw(view.screen) 
 
         # get camera feed

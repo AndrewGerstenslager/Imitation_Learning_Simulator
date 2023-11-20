@@ -94,7 +94,7 @@ def main():
 
         # Drawing env
         view.step()
-        off, norm = view.disp_angleoff(agt, map)
+        #off, norm = view.disp_angleoff(agt, map)
         agt.draw(view.screen) 
 
         # get camera feed

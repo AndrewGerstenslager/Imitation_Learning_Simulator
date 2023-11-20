@@ -243,6 +243,7 @@ class Env():
         # Recursive function to carve the hallways
         def carve(x, y):
             random.shuffle(directions)
+            unspawned = True
             for dx, dy in directions:
                 nx, ny = x + dx * hallway_length, y + dy * hallway_length
                 # Check if the new position is inside the boundary and is a wall
@@ -252,16 +253,19 @@ class Env():
                         for j in range(hallway_length):
                             if 5 <= x + i * dx < self.x_n - 5 and 5 <= y + j * dy < self.y_n - 5:
                                 self.hallway_map[y + j * dy][x + i * dx] = 1
+                                
+                                
 
                     # Carve a hallway from the current position to the new position
                     for i in range(hallway_length):
                         for j in range(hallway_length):
-                            if dx == 0 and dy == -1:
-                                spawn_agent_in_hallway(start_x, start_y)
                             if 5 <= x + i * dx < self.x_n - 5 and 5 <= y + j * dy < self.y_n - 5:
                                 self.grid[y + j * dy][x + i * dx] = 0
 
                     # Recursively carve from the new position (a singular path is followed)
+                    if unspawned:
+                        spawn_agent_in_hallway((x + i * dx )*self.cellsize, (y + j * dy)*self.cellsize)
+                        unspawned = False
                     carve(nx, ny)
                     break  
 
@@ -280,13 +284,14 @@ class Env():
             # Find hallway positions
             hallway_positions = [(y, x) for y in range(self.y_n) for x in range(self.x_n) if self.hallway_map[y][x] == 1]
 
-            # Choose a random position for spawning
-            if hallway_positions:
-                spawn_position = random.choice(hallway_positions)
-                y, x = spawn_position
-                x0 = 10 * x
-                y0 = 10 * y
-                self.agt = self._create_agt(x0=x0, y0=y0, theta0=-90)
+            # # Choose a random position for spawning
+            # if hallway_positions:
+            #     spawn_position = random.choice(hallway_positions)
+            #     y, x = spawn_position
+            #     x0 = 10 * x
+            #     y0 = 10 * y
+            # Try to spawn agent at endpoint of hallway
+            self.agt = self._create_agt(x0=x0, y0=y0, theta0=-90)
 
         # Start carving from a random position within the specified boundaries
         start_x = random.randint(5, self.x_n - 5)
@@ -337,6 +342,18 @@ class Env():
             [yi, xi-r],
             [yi+inc, xi-inc],
         ]
+
+        # collider = [
+        #     [yi, xi],
+        #     [yi+r, xi],
+        #     [yi+r, xi+r],
+        #     [yi, xi+r],
+        #     [yi-r, xi+r],
+        #     [yi-r, xi],
+        #     [yi-r, xi-r],
+        #     [yi, xi-r],
+        #     [yi+r, xi-r],
+        # ]
 
         collisions = [raytools.getCollision(self.cellsize, self.grid, xi, yi) for [yi, xi] in collider]
         for yi, xi in collider:
