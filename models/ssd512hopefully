@@ -1,0 +1,355 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import models
+import pygame
+import numpy as np
+import torchvision.transforms as transforms
+from PIL import Image
+import cv2
+
+
+
+# This function initializes the camera, captures a frame, and releases the camera afterward. It returns the captured frame as a NumPy array
+
+def capture_frame(camera_id=0):
+    # Initialize the camera
+    cap = cv2.VideoCapture(camera_id)
+
+    if not cap.isOpened():
+        print("Error: Could not open camera.")
+        return None
+
+    # Capture a frame
+    ret, frame = cap.read()
+
+    # Release the camera capture when done
+    cap.release()
+
+    if not ret:
+        print("Error: Could not read frame.")
+        return None
+
+    return frame
+
+
+def detect_objects(frame, model, class_labels):
+    # Load the pre-trained SSD model
+    model = cv2.dnn.readNetFromCaffe('path/to/SSD/deploy.prototxt', 'path/to/SSD/model.caffemodel')
+
+    # Define the preprocess_frame function
+    def preprocess_frame(frame):
+        with torch.no_grad():
+            frame_tensor = preprocess_frame(frame)  # Implement frame preprocessing
+        locs, cls_scores = model(frame_tensor)
+    
+        return locs, cls_scores
+    
+    # Generate anchor boxes (if needed)
+    feature_map_size = (preprocessed_frame.size(2), preprocessed_frame.size(3))
+    anchor_boxes = generate_anchor_boxes(feature_map_size, anchor_sizes, aspect_ratios)
+
+    # Decode predicted boxes
+    decoded_boxes = decode_boxes(locs, anchor_boxes)
+
+    # Apply NMS
+    nms_threshold = 0.5  # Adjust as needed
+    selected_indices = non_max_suppression(decoded_boxes, cls_scores, nms_threshold)
+
+    # Define class labels (you may need to customize this based on your model)
+    class_labels = ["background", "class1", "class2", ...]
+
+    # Resize the frame to the input size expected by the model
+    input_size = (64, 64)
+    blob = cv2.dnn.blobFromImage(frame, 0.007843, input_size, (127.5, 127.5, 127.5), swapRB=True, crop=False)
+
+    # Set the input to the model
+    model.setInput(blob)
+
+    # Perform object detection
+    detections = model.forward()
+
+    # Process detections
+    #detected_objects = []
+    #for i in range(detections.shape[2]):
+    #    confidence = detections[0, 0, i, 2]
+    #    if confidence > 0.5:  # Adjust the confidence threshold as needed
+    #        class_id = int(detections[0, 0, i, 1])
+    #        label = class_labels[class_id]
+    #        box = detections[0, 0, i, 3:7] * np.array([frame.shape[1], frame.shape[0], frame.shape[1], frame.shape[0]])
+    #        x, y, w, h = box.astype("int")
+    #        detected_objects.append((x, y, w, h, class_id, confidence))
+
+    # Process detections
+    detected_objects = []
+    for index in selected_indices:
+        x, y, width, height = decoded_boxes[index][:4]
+        class_id = torch.argmax(cls_scores[index]).item()
+        confidence = cls_scores[index][0][class_id].item()
+        label = class_labels[class_id]
+
+        detected_objects.append((x, y, width, height, class_id, confidence, label))
+
+    return detected_objects
+
+# Example usage:
+frame = capture_frame()
+if frame is not None:
+    detected_objects = detect_objects(frame)
+    for detection in detected_objects:
+        x, y, w, h, class_id, confidence = detection
+        if class_id == 1:  # Check if the detected class is the one you want to change the color for
+            render_bounding_box(frame, x, y, w, h, class_id, color=(0, 255, 0))  # Green color
+        else:
+            render_bounding_box(frame, x, y, w, h, class_id)  # Default color
+
+
+# Load the pretrained VGG16 model (with weights pre-trained on ImageNet)
+# Make sure to check if the input size and normalization settings of the VGG16 model match the requirements of your SSD64 model, and adjust them if necessary
+vgg16_model = models.vgg16(pretrained=True)
+
+# You can access the feature extractor portion of the model like this:
+feature_extractor = vgg16_model.features
+
+
+#parameters:
+stride = 1
+
+
+# Define a function to preprocess a single frame
+def preprocess_frame(frame):
+    # Convert the frame to a PIL Image
+    frame_pil = Image.fromarray(frame)
+
+    # Define a series of preprocessing transforms
+    preprocess = transforms.Compose([
+        transforms.Resize((64, 64)),  # Resize to the input size expected by the model
+        transforms.ToTensor(),           # Convert to a PyTorch tensor
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # Normalize using ImageNet statistics
+    ])
+
+    # Apply the preprocessing transforms to the frame
+    frame_tensor = preprocess(frame_pil)
+
+    # Add a batch dimension (optional, depending on the model's input requirements)
+    frame_tensor = frame_tensor.unsqueeze(0)
+
+    return frame_tensor
+
+
+anchor_sizes = [(32, 32), (64, 64), (128, 128)]  # Example anchor box sizes
+aspect_ratios = [(1.0, 1.0), (1.0, 2.0), (2.0, 1.0)]  # Example aspect ratios
+
+
+class SSD64(nn.Module):
+    def __init__(self, num_classes):
+        super(SSD64, self).__init__()
+        self.num_classes = num_classes
+
+        # if we want to change the number of classes, can redefine and remake model
+        #commenting out for now
+        #num_classes = 21
+        
+        # Feature extractor (using a pre-trained VGG model as a backbone)
+        self.features = models.vgg16(pretrained=True).features
+        self.conv6 = nn.Conv2d(512, 256, kernel_size=3, padding=1)
+        self.conv7 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        
+        # Localization and classification heads
+        self.loc_head = nn.Conv2d(256, 4, kernel_size=3, padding=1) # loc_head is a convolutional layer responsible for predicting object bounding box locations (four coordinates per bounding box)
+        self.cls_head = nn.Conv2d(256, self.num_classes, kernel_size=3, padding=1) # cls_head is a convolutional layer responsible for predicting object class scores (one score per class)
+        
+    def forward(self, x):
+        # Iterate through the layers of the feature extractor (self.features) and store intermediate feature maps in the sources list
+        sources = []
+        
+        # Feature extraction
+        for layer in self.features:
+            x = layer(x)
+            if isinstance(layer, nn.MaxPool2d):
+                sources.append(x)
+        
+        x = F.relu(self.conv6(x))
+        sources.append(x)
+        x = F.relu(self.conv7(x))
+        sources.append(x)
+        
+        # Localization and classification heads
+        locs, cls_scores = [], []
+        for source in sources:
+            locs.append(self.loc_head(source))
+            cls_scores.append(self.cls_head(source))
+        
+        return torch.cat(locs, dim=1), torch.cat(cls_scores, dim=1)
+
+
+model = SSD64(num_classes)
+
+# Define a function to generate anchor boxes
+def generate_anchor_boxes(feature_map_size, anchor_sizes, aspect_ratios):
+    anchor_boxes = []
+    for y in range(feature_map_size[0]):
+        for x in range(feature_map_size[1]):
+            for size in anchor_sizes:
+                for ratio in aspect_ratios:
+                    width = size[0] * ratio[0]
+                    height = size[1] * ratio[1]
+                    anchor_x = x * stride  # Adjust for feature map stride
+                    anchor_y = y * stride  # Adjust for feature map stride
+                    anchor_boxes.append((anchor_x, anchor_y, width, height))
+    return torch.Tensor(anchor_boxes)
+
+def decode_boxes(predicted_offsets, anchor_boxes): # decode_boxes function calculates the final bounding box coordinates from the predicted offsets and anchor boxes
+    # Apply predicted offsets and scales to anchor boxes to obtain final bounding boxes
+    decoded_boxes = []
+    for i in range(len(predicted_offsets)):
+        dx, dy, dw, dh = predicted_offsets[i]
+        anchor_x, anchor_y, anchor_w, anchor_h = anchor_boxes[i]
+        decoded_x = dx * anchor_w + anchor_x
+        decoded_y = dy * anchor_h + anchor_y
+        decoded_w = torch.exp(dw) * anchor_w
+        decoded_h = torch.exp(dh) * anchor_h
+        decoded_boxes.append((decoded_x, decoded_y, decoded_w, decoded_h))
+    return torch.Tensor(decoded_boxes)
+decoded_boxes = decode_boxes(locs, anchor_boxes) #responsible for decoding the predicted bounding box offsets using the decode_boxes function we defined earlier
+
+
+def non_max_suppression(boxes, scores, threshold):
+    # Sort boxes by their confidence scores (in descending order)
+    sorted_indices = torch.argsort(scores, descending=True)
+    boxes = boxes[sorted_indices]
+    scores = scores[sorted_indices]
+    
+    selected_indices = []
+    
+    while boxes.shape[0] > 0:
+        # Select the box with the highest confidence score (the first box)
+        selected_indices.append(0)
+        
+        # Calculate IoU (Intersection over Union) between the first box and other boxes
+        iou = calculate_iou(boxes[0], boxes[1:])
+        
+        # Filter out boxes with IoU greater than the threshold
+        overlapping_indices = torch.where(iou <= threshold)[0]
+        
+        # Remove the selected and overlapping boxes
+        boxes = boxes[overlapping_indices + 1]  # +1 because we skipped the first box
+        scores = scores[overlapping_indices + 1] # scores: A tensor containing the confidence scores for each bounding box
+    
+    return sorted_indices[selected_indices]
+
+def calculate_iou(box, boxes):
+    # Calculate the intersection area
+    x1 = torch.maximum(box[0], boxes[:, 0])
+    y1 = torch.maximum(box[1], boxes[:, 1])
+    x2 = torch.minimum(box[2], boxes[:, 2])
+    y2 = torch.minimum(box[3], boxes[:, 3])
+    
+    intersection_area = torch.maximum(0, x2 - x1) * torch.maximum(0, y2 - y1)
+    
+    # Calculate the union area
+    box_area = (box[2] - box[0]) * (box[3] - box[1])
+    boxes_area = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+    
+    union_area = box_area + boxes_area - intersection_area
+    
+    # Calculate IoU
+    iou = intersection_area / union_area
+    
+    return iou
+
+# Render_bounding_box function (we should define this function)
+#def render_bounding_box(x, y, width, height, class_id):
+    # Implement rendering logic here
+#    pass
+
+
+#visualize
+for detection in final_detections:
+     x, y, width, height, class_id, confidence = detection
+     # Render the bounding box on the game screen
+    render_bounding_box(x, y, width, height, class_id)
+
+
+# Initialize Pygame
+pygame.init()
+
+# Define your game screen size
+screen = pygame.display.set_mode((width, height))
+
+# Define colors for bounding boxes
+box_color = (255, 0, 0)  # Red color (R, G, B)
+
+# Define a function to render a bounding box with different colors based on class ID
+def render_bounding_box(x, y, width, height, class_id, color=None):
+    # Convert float coordinates and dimensions to integers
+    x, y, width, height = int(x), int(y), int(width), int(height)
+
+    # Determine the color based on the class_id
+    if color is None:
+        default_color = (255, 0, 0)  # Red color (R, G, B)
+        color = class_colors[class_id] if class_id < len(class_colors) else default_color
+
+    # Draw a rectangle representing the bounding box on the screen
+    pygame.draw.rect(screen, color, (x, y, width, height), 2)  # 2 is the thickness of the rectangle border
+
+# Define class colors (e.g., red for class 0, green for class 1, etc.)
+class_colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]  # Add more colors as needed
+
+    # You can also add text labels or other visual elements to indicate the detected object class or other information
+#  game loop
+def game_loop():
+    running = True  # A flag to control the game loop
+
+    while running:
+        # Handle events, including the quit event
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False  # Set the flag to exit the loop
+        
+        # The rest of your game loop code
+
+    # Clean up and exit the application
+    pygame.quit()
+    cv2.destroyAllWindows()
+
+    while True:
+        # Capture camera frame (you should implement this part)
+        frame = capture_frame()
+        detections = detect_objects(frame)  # Perform object detection (you should implement this
+
+        # Preprocess the frame
+        frame_tensor = preprocess_frame(frame)
+
+        # Forward pass through the SSD64 model
+        with torch.no_grad():
+            locs, cls_scores = model(frame_tensor)
+
+        # Generate anchor boxes
+        feature_map_size = (frame_tensor.size(2), frame_tensor.size(3))
+        anchor_boxes = generate_anchor_boxes(feature_map_size, anchor_sizes, aspect_ratios)
+
+        # Decode predicted boxes
+        decoded_boxes = decode_boxes(locs, anchor_boxes)
+
+        # Apply NMS
+        nms_threshold = 0.5  # Adjust as needed
+        selected_indices = non_max_suppression(decoded_boxes, cls_scores, nms_threshold)
+
+        # Render detected bounding boxes
+        for index in selected_indices:
+            x, y, width, height = decoded_boxes[index][:4]
+            class_id = torch.argmax(cls_scores[index]).item()
+
+# Define colors for different classes (e.g., red for class 0, green for class 1, etc.)
+            class_colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]  # Add more colors as needed
+            render_bounding_box(x, y, width, height, class_id)
+        
+            for detection in detections:
+                x, y, width, height, class_id, confidence = detection
+                # Define colors for different classes (e.g., red for class 0, green for class 1, etc
+            class_colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]  # Add more colors as needed
+            render_bounding_box(x, y, width, height, class_id)
+
+# Start the game loop
+game_loop()
