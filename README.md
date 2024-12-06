@@ -1,6 +1,8 @@
 # Autonomous Navigation in Complex Environments
 A Deep Learning project implementing CNN-DNN fusion for autonomous robot navigation in subterranean environments.
 
+Arxiv paper link: [https://arxiv.org/abs/2401.03267](https://arxiv.org/abs/2401.03267)
+
 Team Members:
 - Andrew Gerstenslager
 - Liam McKenna
@@ -78,7 +80,7 @@ python3 main.py
 - Save current model: Press 'S' during simulation
 - Load existing model: Press 'L' during simulation
 
-![Main window manual drive example](assets/main_sim_video1.webm "Main window manual drive example")
+https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/assets/main_sim_video1.mp4
 
 ### Testing
 Run Monte-Carlo testing suite:
@@ -100,4 +102,4 @@ The system tracks:
 ### Pre-trained Model
 A pre-trained model is included in the repository and has been verified to work with successtest.py.
 
-![successtest window](assets/successtest_video_1.MP4 "Successtest sped up")
+https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/assets/successtest_video_1.mp4
