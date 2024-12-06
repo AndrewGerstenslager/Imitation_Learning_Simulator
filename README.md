@@ -1,5 +1,5 @@
-# Fall2023_DeepLearnProject
-Fall 2023 University of Cincinnati Deep Learning Project
+# Autonomous Navigation in Complex Environments
+A Deep Learning project implementing CNN-DNN fusion for autonomous robot navigation in subterranean environments.
 
 Team Members:
 - Andrew Gerstenslager
@@ -8,64 +8,99 @@ Team Members:
 - Jomol Lewis
 
 ## Description
-This repository contains the Deep Learning course project for Fall 2023 at the University of Cincinnati.
+This project implements an autonomous navigation system using a fusion of Convolutional Neural Networks (CNN) and Deep Neural Networks (DNN) to navigate complex subterranean environments. The system is designed to:
+- Process both LiDAR and camera data for environmental perception
+- Use imitation learning to develop navigation strategies learned from recorded human data
+- Find goals in unknown cavernous environments
+- Demonstrate robustness through Monte-Carlo testing
+
+### Key Features
+- Dual-mode operation (Manual/Autopilot)
+- Real-time sensor fusion
+- Imitation learning capabilities
+- Model persistence (save/load functionality)
+- Monte-Carlo based robustness testing
 
 ## Project Structure
-```
 project/
 ├── README.md
-└── 
-```
+├── main.py                 # Main simulation environment and training interface
+├── successtest.py          # Monte-Carlo testing implementation
+├── models/                 # Saved model checkpoints
+│   └── best_model.pth     # Pre-trained model included in repo
+├── utils/                  # Utility functions and helpers
+├── config/                 # Configuration files
+└── requirements.txt        # Project dependencies
+
+### Component Details
+- **main.py**: Core application file
+  - Manages simulation environment
+  - Handles manual control mode for data collection
+  - Implements autopilot mode for model testing
+  - Provides model save/load functionality
+
+- **successtest.py**: Testing framework
+  - Implements Monte-Carlo testing
+  - Evaluates model robustness
+  - Generates performance metrics
+
+- **Neural Network Architecture**:
+  - CNN: Processes visual data from cameras
+  - DNN: Processes LiDAR point cloud data
+  - Fusion Layer: Combines CNN and DNN outputs
+  - Control Head: Generates navigation commands
 
 ## Requirements
-- Python 3.x
-- Additional dependencies will be listed in requirements.txt
-
-## Installation
-1. Clone the repository:
-```bash
-git clone https://github.com/[username]/Fall2023_DeepLearnProject.git
-cd Fall2023_DeepLearnProject
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+- Python 3.8+
+- TensorFlow
+- NumPy
+- OpenCV
+- PyGame (for simulation environment)
+- Additional dependencies in requirements.txt
 
 ## Usage
 
-### Simulation Environment Setup
-1. Launch the simulation environment:
+### Running the Simulation
+1. Launch the environment:
+```bash
+python3 main.py
+```
 
-## Course Information
-- Course: Deep Learning
-- Semester: Fall 2023
-- University: University of Cincinnati
-- Professor: Jun Bai
+### Operation Modes
+1. **Manual Mode**:
+   - Used for data collection and demonstration
+   - Control using keyboard inputs:
+     - W/S: Forward/Backward
+     - A/D: Turn Left/Right
+     - Q: Quit
+     - M: Switch to autopilot mode
 
-## License
-MIT License
+2. **Autopilot Mode**:
+   - Tests the trained model
+   - Automatically navigates environment
+   - Press 'M' to switch back to manual mode
 
-Copyright (c) 2023 University of Cincinnati Deep Learning Project Team
+### Model Management
+- Save current model: Press 'S' during simulation
+- Load existing model: Press 'L' during simulation
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+### Testing
+Run Monte-Carlo testing suite:
+```bash
+python successtest.py
+```
+Successtest will:
+- Load a pre-trained model
+- Run multiple navigation attempts in randomly generated environments
+- Generate success rate statistics
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Performance Metrics
+The system tracks:
+- Navigation success rate
+- Average completion time
+- Collision incidents
+- Path efficiency
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+### Pre-trained Model
+A pre-trained model is included in the repository and has been verified to work with successtest.py.
 
-## Acknowledgments
-- University of Cincinnati
