@@ -78,6 +78,8 @@ python3 main.py
 - Save current model: Press 'S' during simulation
 - Load existing model: Press 'L' during simulation
 
+![Main window manual drive example](assets/main_sim_video1.webm "Main window manual drive example")
+
 ### Testing
 Run Monte-Carlo testing suite:
 ```bash
@@ -98,3 +100,4 @@ The system tracks:
 ### Pre-trained Model
 A pre-trained model is included in the repository and has been verified to work with successtest.py.
 
+![successtest window](assets/successtest_video_1.MP4 "Successtest sped up")
