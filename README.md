@@ -21,24 +21,6 @@ This project implements an autonomous navigation system using a fusion of Convol
 - Model persistence (save/load functionality)
 - Monte-Carlo based robustness testing
 
-## Project Structure
-project/
-
-├── README.md
-
-├── main.py                 # Main simulation environment and training interface
-
-├── successtest.py          # Monte-Carlo testing implementation
-
-├── models/                 # Saved model checkpoints
-
-│   └── best_model.pth     # Pre-trained model included in repo
-
-├── utils/                  # Utility functions and helpers
-
-├── config/                 # Configuration files
-
-└── requirements.txt        # Project dependencies
 
 ### Component Details
 - **main.py**: Core application file
@@ -52,7 +34,7 @@ project/
   - Evaluates model robustness
   - Generates performance metrics
 
-- **Neural Network Architecture**:
+- **Neural Network Architecture models/robot_model.py**:
   - CNN: Processes visual data from cameras
   - DNN: Processes LiDAR point cloud data
   - Fusion Layer: Combines CNN and DNN outputs
@@ -73,6 +55,10 @@ project/
 ```bash
 python3 main.py
 ```
+
+![main learning window](assets/main_sim_image1.png "Main window with no goal in sight")
+
+![main learning window](assets/main_sim_image2.png "Main window with the goal in sight")
 
 ### Operation Modes
 1. **Manual Mode**:
