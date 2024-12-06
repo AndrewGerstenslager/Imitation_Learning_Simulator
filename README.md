@@ -56,9 +56,9 @@ This project implements an autonomous navigation system using a fusion of Convol
 python3 main.py
 ```
 
-![main learning window](assets/main_sim_image1.png "Main window with no goal in sight")
+![main learning window](assets/main_sim_image1.jpg "Main window with no goal in sight")
 
-![main learning window](assets/main_sim_image2.png "Main window with the goal in sight")
+![main learning window](assets/main_sim_image2.jpg "Main window with the goal in sight")
 
 ### Operation Modes
 1. **Manual Mode**:
