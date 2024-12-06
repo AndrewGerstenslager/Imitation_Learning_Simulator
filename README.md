@@ -23,13 +23,21 @@ This project implements an autonomous navigation system using a fusion of Convol
 
 ## Project Structure
 project/
+
 ├── README.md
+
 ├── main.py                 # Main simulation environment and training interface
+
 ├── successtest.py          # Monte-Carlo testing implementation
+
 ├── models/                 # Saved model checkpoints
+
 │   └── best_model.pth     # Pre-trained model included in repo
+
 ├── utils/                  # Utility functions and helpers
+
 ├── config/                 # Configuration files
+
 └── requirements.txt        # Project dependencies
 
 ### Component Details
