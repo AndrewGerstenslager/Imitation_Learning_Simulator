@@ -80,7 +80,7 @@ python3 main.py
 - Save current model: Press 'S' during simulation
 - Load existing model: Press 'L' during simulation
 
-https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/assets/main_sim_video1.mp4
+https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/tree/main/assets/main_sim_video1.mp4
 
 ### Testing
 Run Monte-Carlo testing suite:
@@ -102,4 +102,4 @@ The system tracks:
 ### Pre-trained Model
 A pre-trained model is included in the repository and has been verified to work with successtest.py.
 
-https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/assets/successtest_video_1.mp4
+https://github.com/AndrewGerstenslager/Imitation_Learning_Simulator/tree/main/assets/successtest_video_1.mp4
