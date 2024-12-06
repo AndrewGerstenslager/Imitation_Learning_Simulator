@@ -80,7 +80,7 @@ python3 main.py
 - Save current model: Press 'S' during simulation
 - Load existing model: Press 'L' during simulation
 
-### manual driving in main.py:
+### Manual Driving in main.py:
 
 ![Main window manual drive example](assets/main_sim_video_1.gif "Main window manual drive example")
 
