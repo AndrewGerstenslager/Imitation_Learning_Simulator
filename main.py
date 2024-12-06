@@ -1,7 +1,6 @@
 import pygame
 import sys
-import math
-import time
+from typing import List, Tuple, Optional
 import numpy as np
 
 sys.path.append("..")
@@ -13,29 +12,54 @@ import sensors.laser
 import record.control_record
 from sensors.virtualcamera import virtualcamera
 
-cellsize = 10
-width = 800
-height = 600
-camera_res = 64
+# Game constants
+CELL_SIZE = 10
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+CAMERA_RES = 64
+LASER_MAX_RANGE = 124
+NUM_LASERS = 20
+LASER_FOV = 180
+CAMERA_FOV = 120
+OUTER_RADIUS = 250
+INNER_RADIUS = 150
+HALLWAY_LENGTH = 11  # Range 9-20, higher values reduce map complexity
+FPS = 20
 
-# Pygame window management
-view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res * 3)
-seed = int(np.random.random() * 1000)
-hallway_length = 11  # If using roomtype "winding", increasing length will reduce complexity of map (length should stay within range 9-20)
-outer_radius = 250
-inner_radius = 150
-# Env class definition
-# envParam = [[800/2, 600/2], inner_radius, outer_radius]
-envParam = [width / 2, height / 2, 0]
-map = env.envGenerator.Env(
-    param=envParam,
-    roomtype="winding",
-    cellsize=cellsize,
-    width=width,
-    height=height,
-    hallway_length=hallway_length,
-    seed=seed,
-)
+# UI Text positions
+TEXT_X = SCREEN_WIDTH
+TEXT_START_Y = SCREEN_HEIGHT - 250
+TEXT_SPACING = 30
+
+# Colors
+WHITE = (255, 255, 255)
+
+
+def initialize_game() -> Tuple[frame.pygame_frame.Frame, env.envGenerator.Env]:
+    """Initialize the game environment and view."""
+    # Pygame window management
+    view = frame.pygame_frame.Frame(
+        WIDTH=SCREEN_WIDTH, HEIGHT=SCREEN_HEIGHT, sidebar=CAMERA_RES * 3
+    )
+
+    # Initialize environment
+    seed = int(np.random.random() * 1000)
+    env_params = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0]
+    game_map = env.envGenerator.Env(
+        param=env_params,
+        roomtype="winding",
+        cellsize=CELL_SIZE,
+        width=SCREEN_WIDTH,
+        height=SCREEN_HEIGHT,
+        hallway_length=HALLWAY_LENGTH,
+        seed=seed,
+    )
+
+    return view, game_map
+
+
+# Initialize game components
+view, map = initialize_game()
 
 pygame.font.init()
 font = pygame.font.SysFont("Arial", 24)
@@ -51,45 +75,78 @@ view.show_map(map.grid)
 # Model.eval()
 
 
-# Laser Ranger Definition
-lasers = []
-laser_max_range = 124
-n_lasers = 20
-laser_FOV = 180
-offset = np.linspace(-laser_FOV / 2, laser_FOV / 2, n_lasers)
-for i in range(n_lasers):
-    laser = sensors.laser.LaserSensor(
-        angle_off=offset[i],
-        max_range=laser_max_range,
-        cell_size=cellsize,
-        grid=map.grid,
-    )
-    lasers.append(laser)
+def initialize_sensors(
+    game_map: env.envGenerator.Env,
+) -> Tuple[List[sensors.laser.LaserSensor], virtualcamera]:
+    """Initialize laser sensors and virtual camera."""
+    # Initialize laser sensors
+    offset = np.linspace(-LASER_FOV / 2, LASER_FOV / 2, NUM_LASERS)
+    lasers = [
+        sensors.laser.LaserSensor(
+            angle_off=offset[i],
+            max_range=LASER_MAX_RANGE,
+            cell_size=CELL_SIZE,
+            grid=game_map.grid,
+        )
+        for i in range(NUM_LASERS)
+    ]
 
-camera = virtualcamera(
-    FOV=120,
-    width=camera_res,
-    height=camera_res,
-    frame_width=width,
-    max_range=laser_max_range,
-    view=view,
-    cellsize=cellsize,
-    grid=map.grid,
-)
+    # Initialize virtual camera
+    camera = virtualcamera(
+        FOV=CAMERA_FOV,
+        width=CAMERA_RES,
+        height=CAMERA_RES,
+        frame_width=SCREEN_WIDTH,
+        max_range=LASER_MAX_RANGE,
+        view=view,
+        cellsize=CELL_SIZE,
+        grid=game_map.grid,
+    )
+
+    return lasers, camera
+
+
+# Initialize sensors
+lasers, camera = initialize_sensors(map)
 
 
 # Recorder Definition
 recorder = record.control_record.recorder()
 
 
-def main():
+def draw_ui_text(screen: pygame.Surface) -> None:
+    """Draw UI instructions on the screen."""
+    instructions = [
+        "Drive: W,A,S,D",
+        "Record: R",
+        "Teaching: E",
+        "Self-Driving: F",
+        "Load Model: K",
+        "Save Model: L",
+    ]
 
-    i = 0
+    for i, text in enumerate(instructions):
+        text_surface = font.render(text, True, WHITE)
+        screen.blit(text_surface, (TEXT_X, TEXT_START_Y + i * TEXT_SPACING))
+
+
+def handle_game_state(valid: int) -> None:
+    """Handle game state changes."""
+    if valid == 2:
+        print("Goal Reached")
+    elif valid == 1:
+        print("Crash")
+
+
+def main() -> None:
+    """Main game loop."""
     clock = pygame.time.Clock()
-    recommended = [0, 0, 0]
+    frame_count = 0
+
     while True:
-        i += 1
-        # exit condition
+        frame_count += 1
+
+        # Handle exit condition
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -124,28 +181,10 @@ def main():
             print("Crash")
             # break
 
-        # Blit the text surface onto the screen
-        view.screen.blit(
-            font.render("Drive: W,A,S,D", True, (255, 255, 255)), (width, height - 250)
-        )
-        view.screen.blit(
-            font.render("Record: R", True, (255, 255, 255)), (width, height - 220)
-        )
-        view.screen.blit(
-            font.render("Teaching: E", True, (255, 255, 255)), (width, height - 190)
-        )
-        view.screen.blit(
-            font.render("Self-Driving: F", True, (255, 255, 255)), (width, height - 160)
-        )
-        view.screen.blit(
-            font.render("Load Model: K", True, (255, 255, 255)), (width, height - 100)
-        )
-        view.screen.blit(
-            font.render("Save Model: L", True, (255, 255, 255)), (width, height - 70)
-        )
-
+        # Draw UI and update display
+        draw_ui_text(view.screen)
         pygame.display.flip()
-        clock.tick(20)
+        clock.tick(FPS)
 
 
 if __name__ == "__main__":
