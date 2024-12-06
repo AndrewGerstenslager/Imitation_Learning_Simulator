@@ -4,10 +4,8 @@ import math
 import time
 import numpy as np
 
-sys.path.append('..')
-import models.PoseNet
+sys.path.append("..")
 import models.cheatCNN
-import torch
 import agent.turtle
 import frame.pygame_frame
 import env.envGenerator
@@ -21,28 +19,30 @@ height = 600
 camera_res = 64
 
 # Pygame window management
-view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res*3)
-seed = int(np.random.random()*1000)
-hallway_length = 11 #If using roomtype "winding", increasing length will reduce complexity of map (length should stay within range 9-20)
+view = frame.pygame_frame.Frame(WIDTH=width, HEIGHT=height, sidebar=camera_res * 3)
+seed = int(np.random.random() * 1000)
+hallway_length = 11  # If using roomtype "winding", increasing length will reduce complexity of map (length should stay within range 9-20)
 outer_radius = 250
 inner_radius = 150
 # Env class definition
-#envParam = [[800/2, 600/2], inner_radius, outer_radius]
-envParam = [width/2, height/2, 0]
-map = env.envGenerator.Env(param=envParam,
-                           roomtype="winding",
-                           cellsize=cellsize, 
-                           width=width, 
-                           height=height,
-                           hallway_length=hallway_length,
-                           seed=seed)
+# envParam = [[800/2, 600/2], inner_radius, outer_radius]
+envParam = [width / 2, height / 2, 0]
+map = env.envGenerator.Env(
+    param=envParam,
+    roomtype="winding",
+    cellsize=cellsize,
+    width=width,
+    height=height,
+    hallway_length=hallway_length,
+    seed=seed,
+)
 
 pygame.font.init()
-font = pygame.font.SysFont('Arial', 24)
+font = pygame.font.SysFont("Arial", 24)
 # Agent
 agt = map.agt
 
-#map.draw_map()
+# map.draw_map()
 view.show_map(map.grid)
 
 # CNN
@@ -56,26 +56,34 @@ lasers = []
 laser_max_range = 124
 n_lasers = 20
 laser_FOV = 180
-offset = np.linspace(-laser_FOV/2, laser_FOV/2, n_lasers)
+offset = np.linspace(-laser_FOV / 2, laser_FOV / 2, n_lasers)
 for i in range(n_lasers):
-    laser = sensors.laser.LaserSensor(angle_off=offset[i], max_range=laser_max_range, cell_size=cellsize, grid=map.grid)
+    laser = sensors.laser.LaserSensor(
+        angle_off=offset[i],
+        max_range=laser_max_range,
+        cell_size=cellsize,
+        grid=map.grid,
+    )
     lasers.append(laser)
 
-camera = virtualcamera(FOV=120, 
-                    width=camera_res, 
-                    height=camera_res,
-                    frame_width=width, 
-                    max_range=laser_max_range,
-                    view=view,
-                    cellsize=cellsize,
-                    grid=map.grid)
+camera = virtualcamera(
+    FOV=120,
+    width=camera_res,
+    height=camera_res,
+    frame_width=width,
+    max_range=laser_max_range,
+    view=view,
+    cellsize=cellsize,
+    grid=map.grid,
+)
 
 
 # Recorder Definition
 recorder = record.control_record.recorder()
 
+
 def main():
-    
+
     i = 0
     clock = pygame.time.Clock()
     recommended = [0, 0, 0]
@@ -94,8 +102,8 @@ def main():
 
         # Drawing env
         view.step()
-        #off, norm = view.disp_angleoff(agt, map)
-        agt.draw(view.screen) 
+        # off, norm = view.disp_angleoff(agt, map)
+        agt.draw(view.screen)
 
         # get camera feed
         image = camera.snap(agt)
@@ -111,22 +119,34 @@ def main():
         valid = map.validate(view.screen)
         if valid == 2:
             print("Goal Reached")
-            #break
+            # break
         elif valid == 1:
-           print("Crash")
-           #break
-        
-        # Blit the text surface onto the screen
-        view.screen.blit(font.render('Drive: W,A,S,D', True, (255, 255, 255)), (width, height - 250))
-        view.screen.blit(font.render('Record: R', True, (255, 255, 255)), (width, height - 220))
-        view.screen.blit(font.render('Teaching: E', True, (255, 255, 255)), (width, height - 190))
-        view.screen.blit(font.render('Self-Driving: F', True, (255, 255, 255)), (width, height - 160))
-        view.screen.blit(font.render('Load Model: K', True, (255, 255, 255)), (width, height - 100))
-        view.screen.blit(font.render('Save Model: L', True, (255, 255, 255)), (width, height - 70))
+            print("Crash")
+            # break
 
+        # Blit the text surface onto the screen
+        view.screen.blit(
+            font.render("Drive: W,A,S,D", True, (255, 255, 255)), (width, height - 250)
+        )
+        view.screen.blit(
+            font.render("Record: R", True, (255, 255, 255)), (width, height - 220)
+        )
+        view.screen.blit(
+            font.render("Teaching: E", True, (255, 255, 255)), (width, height - 190)
+        )
+        view.screen.blit(
+            font.render("Self-Driving: F", True, (255, 255, 255)), (width, height - 160)
+        )
+        view.screen.blit(
+            font.render("Load Model: K", True, (255, 255, 255)), (width, height - 100)
+        )
+        view.screen.blit(
+            font.render("Save Model: L", True, (255, 255, 255)), (width, height - 70)
+        )
 
         pygame.display.flip()
         clock.tick(20)
+
 
 if __name__ == "__main__":
     main()
