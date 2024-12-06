@@ -81,6 +81,7 @@ python3 main.py
 - Load existing model: Press 'L' during simulation
 
 manual driving in main.py
+
 ![Main window manual drive example](assets/main_sim_video_1.gif "Main window manual drive example")
 
 ### Testing
@@ -104,4 +105,5 @@ The system tracks:
 A pre-trained model is included in the repository and has been verified to work with successtest.py.
 
 successtest.py running:
+
 ![successtest window](assets/successtest_video_1.gif "Successtest sped up")
